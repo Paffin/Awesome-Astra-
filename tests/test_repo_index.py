@@ -47,6 +47,31 @@ class IndexTests(unittest.TestCase):
         self.assertEqual(result["text"], "".join(text.splitlines(keepends=True)[result["start"]-1:result["end"]]))
         self.assertEqual(result["sha256"], hashlib.sha256(text.encode()).hexdigest())
 
+    def test_common_language_declarations_create_symbol_chunks(self):
+        fixtures = {
+            "web/checkout.ts": "export async function processInvoice(id: string) {\n  return id;\n}\n",
+            "worker/main.go": "package worker\n\nfunc ProcessInvoice(id string) string {\n return id\n}\n",
+            "core/lib.rs": "pub fn process_invoice(id: &str) -> &str {\n    id\n}\n",
+            "api/Invoice.java": "public class InvoiceProcessor {\n}\n",
+        }
+        for path, text in fixtures.items():
+            self.write(path, text)
+        report = self.search("process invoice", limit=8)
+        by_path = {item["path"]: item for item in report["results"]}
+        self.assertIn("processInvoice", by_path["web/checkout.ts"]["symbols"])
+        self.assertIn("ProcessInvoice", by_path["worker/main.go"]["symbols"])
+        self.assertIn("process_invoice", by_path["core/lib.rs"]["symbols"])
+        self.assertIn("InvoiceProcessor", by_path["api/Invoice.java"]["symbols"])
+
+    def test_all_terms_rank_before_relaxed_fallback(self):
+        self.write("exact.py", "def retry_invoice():\n    pass\n")
+        self.write("partial.py", "def retry_job():\n    pass\n")
+        report = self.search("retry invoice", limit=4)
+        self.assertEqual(report["results"][0]["path"], "exact.py")
+        self.assertEqual(report["results"][0]["match"], "all-terms")
+        self.assertTrue(any(item["path"] == "partial.py" and item["match"] == "any-term"
+                            for item in report["results"]))
+
     def test_unchanged_files_are_not_reindexed(self):
         self.write("a.py", "value = 1\n")
         self.assertEqual(self.search("value")["stats"]["updated"], 1)
@@ -87,6 +112,10 @@ class IndexTests(unittest.TestCase):
         self.write("huge.txt", "x" * (index.MAX_FILE_BYTES + 1))
         self.write("minified.js", "uniquecredentialmarker" + "x" * 8001)
         self.write("accidental.txt", "-----BEGIN RSA PRIVATE KEY-----\nuniquecredentialmarker\n")
+        self.write("secrets.yaml", "token: uniquecredentialmarker\n")
+        self.write("state/terraform.tfstate", "uniquecredentialmarker\n")
+        self.write("slack.txt", "xoxb-12345678901234567890\nuniquecredentialmarker\n")
+        self.write("openai.txt", "sk-proj-12345678901234567890\nuniquecredentialmarker\n")
         self.assertEqual(self.search("uniquecredentialmarker")["results"], [])
 
     def test_symlink_file_and_parent_are_not_read(self):

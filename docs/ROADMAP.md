@@ -1,8 +1,8 @@
 # Evidence-gated roadmap
 
-## Delivered in 0.2.0
+## Delivered through 0.3.0
 
-Two skill entry points; direct path for small edits; conditional context/handoff/experiment guidance; local incremental lexical index; safer per-skill installation; paired telemetry comparator; deterministic tests and 24 behavioral evaluation specifications.
+Two skill entry points; direct path for small edits; conditional context/handoff/experiment guidance; local incremental weighted lexical index with common-language declaration hints; safer per-skill installation; portable and Codex plugin manifests; paired telemetry comparator; deterministic tests and 24 behavioral evaluation specifications.
 
 ## Next: live Astra evaluation
 

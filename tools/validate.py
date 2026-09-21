@@ -102,6 +102,13 @@ def main() -> int:
         errors.append("invalid plugin identity/version")
     if plugin.get("$schema") != "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json":
         errors.append("unexpected plugin schema")
+    compatibility = ROOT / ".codex-plugin/plugin.json"
+    try:
+        codex_plugin = json.loads(compatibility.read_text(encoding="utf-8"))
+        if codex_plugin != plugin:
+            errors.append(".codex-plugin/plugin.json must match portable plugin.json")
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"invalid Codex compatibility manifest: {exc}")
     skills = sorted(p for p in SKILLS.iterdir() if p.is_dir())
     if {p.name for p in skills} != NAMES:
         errors.append("expected exactly two non-overlapping skill entry points")
@@ -111,7 +118,7 @@ def main() -> int:
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
-    print(f"validated plugin and {len(skills)} skills; behavior outcomes are not evaluated here")
+    print(f"validated portable/Codex manifests and {len(skills)} skills; behavior outcomes are not evaluated here")
     return 0
 
 

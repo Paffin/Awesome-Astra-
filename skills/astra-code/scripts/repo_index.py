@@ -19,7 +19,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-SCHEMA = "1"
+SCHEMA = "2"
 MAX_FILE_BYTES = 262_144
 MAX_FILES = 20_000
 CHUNK_LINES = 60
@@ -27,10 +27,35 @@ OVERLAP = 8
 SKIP_DIRS = {".git", ".hg", ".svn", ".venv", "venv", "node_modules", "vendor",
              "dist", "build", "target", "coverage", "__pycache__", ".next", ".cache"}
 SECRET_NAMES = {".npmrc", ".pypirc", ".netrc", "auth.json", "credentials",
-                "credentials.json", "kubeconfig", "id_rsa", "id_ed25519"}
-SECRET_EXTS = {".pem", ".key", ".p12", ".pfx", ".jks", ".keystore"}
+                "credentials.json", "kubeconfig", "id_rsa", "id_ed25519",
+                "secrets.yml", "secrets.yaml", "terraform.tfstate",
+                "terraform.tfstate.backup"}
+SECRET_EXTS = {".pem", ".key", ".p12", ".pfx", ".jks", ".keystore", ".kdbx"}
 SECRET_MARKER = re.compile(r"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|"
-                           r"\bgh[pousr]_[A-Za-z0-9]{30,}\b|\bAKIA[A-Z0-9]{16}\b")
+                           r"\bgh[pousr]_[A-Za-z0-9]{30,}\b|\bAKIA[A-Z0-9]{16}\b|"
+                           r"\bxox[baprs]-[A-Za-z0-9-]{20,}\b|"
+                           r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b")
+
+DECLARATIONS: dict[tuple[str, ...], tuple[re.Pattern[str], ...]] = {
+    (".js", ".jsx", ".ts", ".tsx"): (
+        re.compile(r"^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?(?:function|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)"),
+        re.compile(r"^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*(?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>"),
+    ),
+    (".go",): (
+        re.compile(r"^\s*func\s+(?:\([^)]*\)\s*)?([A-Za-z_]\w*)\s*\("),
+        re.compile(r"^\s*type\s+([A-Za-z_]\w*)\s+(?:struct|interface)\b"),
+    ),
+    (".rs",): (
+        re.compile(r"^\s*(?:pub(?:\([^)]*\))?\s+)?(?:async\s+)?(?:fn|struct|enum|trait|type|mod)\s+([A-Za-z_]\w*)"),
+        re.compile(r"^\s*(?:pub(?:\([^)]*\))?\s+)?impl(?:<[^>]+>)?\s+([A-Za-z_]\w*)"),
+    ),
+    (".java", ".kt", ".kts", ".cs"): (
+        re.compile(r"^\s*(?:(?:public|private|protected|internal|abstract|final|sealed|static|data|open|partial)\s+)*(?:class|interface|enum|record|object|struct)\s+([A-Za-z_]\w*)"),
+    ),
+    (".sh", ".bash", ".zsh"): (
+        re.compile(r"^\s*(?:function\s+)?([A-Za-z_][\w-]*)\s*\(\)\s*\{"),
+    ),
+}
 
 
 def git(root: Path, *args: str, data: bytes | None = None,
@@ -107,7 +132,21 @@ def terms(text: str) -> list[str]:
     return re.findall(r"[^\W_]+", split.lower(), flags=re.UNICODE)
 
 
-def chunks(path: str, text: str) -> list[tuple[int, int, str, str, str]]:
+def declared_symbols(path: str, text: str) -> list[tuple[int, int, str]]:
+    """Return conservative declaration starts for non-Python source."""
+    suffix = Path(path).suffix.lower()
+    patterns = next((value for suffixes, value in DECLARATIONS.items() if suffix in suffixes), ())
+    found: list[tuple[int, int, str]] = []
+    for number, line in enumerate(text.splitlines(), 1):
+        for pattern in patterns:
+            match = pattern.match(line)
+            if match:
+                found.append((number, number, match.group(1)))
+                break
+    return found
+
+
+def chunks(path: str, text: str) -> list[tuple[int, int, str, str, str, str, str]]:
     lines = text.splitlines(keepends=True)
     starts = {1, len(lines) + 1}
     symbols: list[tuple[int, int, str]] = []
@@ -122,6 +161,9 @@ def chunks(path: str, text: str) -> list[tuple[int, int, str, str, str]]:
                     symbols.append((node.lineno, node.end_lineno or node.lineno, node.name))
         except (SyntaxError, ValueError, RecursionError):
             pass  # Unfinished source stays searchable via the line-based fallback.
+    else:
+        symbols = declared_symbols(path, text)
+        starts.update(start for start, _, _ in symbols)
     result = []
     boundaries = sorted(starts)
     for low, high in zip(boundaries, boundaries[1:]):
@@ -130,9 +172,11 @@ def chunks(path: str, text: str) -> list[tuple[int, int, str, str, str]]:
             end = min(start + CHUNK_LINES, high) - 1
             body = "".join(lines[start - 1:end])
             labels = " ".join(name for a, b, name in symbols if a <= end and b >= start)
-            indexed = " ".join(terms(body + " " + path + " " + path + " " + (labels + " ") * 3))
+            path_tokens = " ".join(terms(path))
+            symbol_tokens = " ".join(terms(labels))
+            body_tokens = " ".join(terms(body))
             if body.strip():
-                result.append((start, end, labels, body, indexed))
+                result.append((start, end, labels, body, path_tokens, symbol_tokens, body_tokens))
             if end + 1 == high:
                 break
             start = end + 1 - OVERLAP
@@ -163,7 +207,7 @@ def connect(cache: Path, root: Path) -> sqlite3.Connection:
         connection.execute("CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, digest TEXT)")
         connection.execute("CREATE VIRTUAL TABLE IF NOT EXISTS excerpts USING fts5("
                            "path UNINDEXED, start UNINDEXED, end UNINDEXED, symbols UNINDEXED, "
-                           "body UNINDEXED, terms)")
+                           "body UNINDEXED, path_tokens, symbol_tokens, body_tokens)")
         connection.commit()
     except Exception:
         connection.close()
@@ -189,7 +233,8 @@ def refresh(db: sqlite3.Connection, root: Path, patterns: list[str]) -> dict[str
                 stats["unchanged"] += 1
                 continue
             db.execute("DELETE FROM excerpts WHERE path = ?", (path,))
-            db.executemany("INSERT INTO excerpts(path,start,end,symbols,body,terms) VALUES (?,?,?,?,?,?)",
+            db.executemany("INSERT INTO excerpts(path,start,end,symbols,body,path_tokens,symbol_tokens,body_tokens) "
+                           "VALUES (?,?,?,?,?,?,?,?)",
                            [(path, *chunk) for chunk in chunks(path, text)])
             db.execute("INSERT OR REPLACE INTO files VALUES (?,?)", (path, digest))
             stats["updated"] += 1
@@ -215,14 +260,24 @@ def search(db: sqlite3.Connection, root: Path, query: str, stats: dict,
     words = list(dict.fromkeys(terms(query)))[:32]
     if not words:
         raise ValueError("Query must contain searchable words or identifiers")
-    expression = " OR ".join('"' + word + '"' for word in words)
-    rows = db.execute("SELECT excerpts.path,start,end,symbols,body,files.digest FROM excerpts JOIN files ON files.path=excerpts.path "
-                      "WHERE excerpts MATCH ? ORDER BY bm25(excerpts), excerpts.path, start LIMIT ?",
-                      (expression, limit * 12)).fetchall()
-    report = {"retrieval": "lexical-fts5", "budget_unit": "UTF-8 bytes",
+    quoted = ['"' + word + '"' for word in words]
+    strict = " AND ".join(quoted)
+    relaxed = " OR ".join(quoted)
+    sql = ("SELECT excerpts.rowid,excerpts.path,start,end,symbols,body,files.digest "
+           "FROM excerpts JOIN files ON files.path=excerpts.path WHERE excerpts MATCH ? "
+           "ORDER BY bm25(excerpts,0,0,0,0,8.0,12.0,1.0), excerpts.path, start LIMIT ?")
+    strict_rows = db.execute(sql, (strict, limit * 12)).fetchall()
+    rows = [(row, "all-terms") for row in strict_rows]
+    if len(strict_rows) < limit * 2 and relaxed != strict:
+        seen = {row[0] for row in strict_rows}
+        rows.extend((row, "any-term") for row in db.execute(sql, (relaxed, limit * 12)).fetchall()
+                    if row[0] not in seen)
+    report = {"retrieval": "weighted-lexical-fts5", "query_terms": words,
+              "budget_unit": "UTF-8 bytes",
               "stats": stats, "stale_hits": 0, "budget_exhausted": False, "results": []}
     counts: dict[str, int] = {}
-    for path, start, end, symbols, body, digest in rows:
+    for row, match_mode in rows:
+        _, path, start, end, symbols, body, digest = row
         if counts.get(path, 0) >= 2 or len(report["results"]) == limit:
             continue
         current = read_source(root, path)
@@ -230,6 +285,7 @@ def search(db: sqlite3.Connection, root: Path, query: str, stats: dict,
             report["stale_hits"] += 1
             continue
         item = {"path": path, "start": int(start), "end": int(end), "symbols": symbols,
+                "match": match_mode,
                 "sha256": current[1], "text": body, "truncated": False}
         report["results"].append(item)
         while len(encoded(report).encode("utf-8")) > max_bytes and item["text"]:

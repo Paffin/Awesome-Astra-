@@ -15,9 +15,9 @@ Git working tree
   -> tracked + eligible untracked files
   -> Git ignores + conservative exclusions
   -> content hash comparison
-  -> Python AST boundaries / bounded line windows
-  -> local SQLite FTS5 lexical index
-  -> ranked candidates
+  -> Python AST + conservative common-language declaration boundaries
+  -> weighted local SQLite FTS5 lexical index
+  -> all-terms candidates, then labeled any-term fallback
   -> source-hash revalidation
   -> bounded JSON with path, lines, hash, and excerpt
 ```
@@ -26,7 +26,7 @@ This is an incremental lexical/structural baseline, not semantic equivalence to 
 
 Each invocation inventories and hashes eligible files. Only changed files are rechunked and reinserted; deleted, newly ignored, or newly excluded content is removed from active search. Hashing all eligible bytes is O(repository bytes), so do not use this baseline to claim Cursor-scale update latency. Initial cache construction has a cost; one-off exact edits are usually better served by `rg`.
 
-The default limit is 20,000 discovered files and 256 KiB per file. Lines above 8,000 UTF-8 bytes are skipped as likely generated/minified content. Python chunks use top-level AST boundaries and symbol annotations; other text and incomplete Python use overlapping line windows. Results are capped at two chunks per file; retrieval is not exhaustive. Queries match lexical words/identifiers, not cross-language concepts or arbitrary regex.
+The default limit is 20,000 discovered files and 256 KiB per file. Lines above 8,000 UTF-8 bytes are skipped as likely generated/minified content. Python chunks use AST boundaries and symbol annotations. JavaScript/TypeScript, Go, Rust, Java/Kotlin/C#, and shell use conservative declaration patterns; these are chunking hints, not parsers. Other text and incomplete Python use overlapping line windows. Results are capped at two chunks per file; retrieval is not exhaustive. Queries match lexical words/identifiers, not cross-language concepts or arbitrary regex.
 
 ## Usage
 
@@ -39,6 +39,8 @@ python3 skills/astra-code/scripts/repo_index.py --root /repo purge
 ```
 
 Additional exclusions use Python whole-path `fnmatchcase`, not full gitignore syntax: no negation or gitignore anchoring. Repeat exclusions on every command; they are not persisted policy. Standard Git-ignore handling includes already-tracked ignored files through `git check-ignore --no-index`.
+
+The 0.3.0 weighted-column schema is intentionally incompatible with the 0.2.0 cache. Run `purge` once when upgrading. The tool refuses a mismatched schema instead of returning misleading mixed results.
 
 Output budgets include the complete UTF-8 JSON and final newline. Partial excerpts identify their actual end line and `truncated: true`; `budget_exhausted` signals dropped content. `stale_hits` counts candidates rejected after content changed. A no-result search does not prove absence.
 

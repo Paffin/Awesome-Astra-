@@ -2,7 +2,7 @@ interface:
   display_name: "Astra Code"
   short_description: "Fast, precise coding with minimal context"
   default_prompt: "Use $astra-code to implement this task with minimal context and proportionate verification."
-  icon_small: "assets/icon.svg"
-  icon_large: "assets/icon.svg"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
 policy:
   allow_implicit_invocation: true

@@ -10,7 +10,7 @@ Reviewed **2026-09-22**. This is a selected primary-source review, not a claim t
 | OpenAI, [Using GPT-6 Astra](https://developers.openai.com/api/docs/guides/latest-model) | Calibrate verification and delegation to the task and host. | Pretending prose implements API concurrency, caching, or steering. |
 | OpenAI, [model reference](https://developers.openai.com/api/docs/models/gpt-6-astra) | Use the documented `gpt-6-astra` identity; keep model selection in the host. | Invented model aliases, hidden settings, or a universal best reasoning effort. |
 | OpenAI, [Build skills](https://learn.chatgpt.com/docs/build-skills) | Metadata for discovery, lazy bodies/resources, user and repo skill directories. | Backups containing duplicate skills inside the discovery directory. |
-| OpenAI, [Package your plugin](https://developers.openai.com/plugins/build/plugins) | Portable root `plugin.json`, `skills/`, optional UI metadata. | Unneeded MCP servers, lifecycle hooks, duplicate compatibility manifests. |
+| OpenAI, [Build plugins](https://learn.chatgpt.com/docs/build-plugins) | Portable root `plugin.json`, Codex `.codex-plugin/plugin.json`, `skills/`, optional UI metadata. | Unneeded MCP servers and lifecycle hooks. |
 | OpenAI, [Testing Agent Skills Systematically with Evals](https://developers.openai.com/blog/eval-skills) | Evaluate behavior and efficiency with evidence beyond static lint. | Treating unit tests or case counts as model benchmark results. |
 | [Agent Skills specification](https://agentskills.io/specification) | Standard `SKILL.md` entry points with frontmatter and supporting resources. | Copying host-specific role-card metadata into portable skill frontmatter. |
 
