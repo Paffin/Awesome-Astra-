@@ -1,0 +1,8 @@
+interface:
+  display_name: "Astra Repo Audit"
+  short_description: "Reduce Codex context without losing safeguards"
+  default_prompt: "Use $astra-repo-audit to audit this repository for Astra context bloat and conflicting instructions."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true
