@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0 — 2026-09-22
+
+- Add project-wide integration guidance: canonical owners, real entrypoints,
+  consumers, generated contracts, configuration and compatibility evidence.
+- Add incremental Python AST import facts and transitive impact candidates with
+  content-bound snapshots, explicit coverage gaps and no target-code execution.
+- Add a reviewed integration-ledger gate; it validates evidence completeness,
+  not the truth of supplied claims or whole-project correctness.
+- Fix shifted BM25 weights and fallback starvation after per-file result caps.
+- Add six integration behavior specifications and regression tests (59 total tests).
+- Independent tool review reproduced two additional defects; normalize changed
+  paths and retain missing-module diagnostics even when parent packages exist.
+
+Compiler/LSP-backed binding, other-language dependency graphs, external-consumer
+verification and live Astra paired performance evaluations remain unimplemented.
+
 ## 0.3.0 — 2026-09-22
 
 - Rank path and symbol matches above body text and require all query terms before a controlled any-term fallback.

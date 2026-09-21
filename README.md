@@ -15,6 +15,22 @@ Version **0.3.0** improves retrieval precision, adds declaration-aware chunks fo
 
 ## Install
 
+### 0.4.0: integrated changes, not isolated helpers
+
+The skill now requires tracing changed contracts to consumers and verifying the
+real entrypoint. For Python, a bundled impact map caches AST import facts by hash:
+
+```bash
+python3 skills/astra-code/scripts/project_map.py --root /repo --source-root src --changed src/pkg/core.py
+```
+
+The output includes transitive import candidates, a working-tree snapshot hash,
+parse/dynamic/external gaps and unsupported files. These are syntactic facts,
+not compiler binding or a universal call graph. Unchanged facts are reused;
+changed/deleted files invalidate the map. It refuses oversized output rather
+than silently omitting consumers. `tools/check_integration.py` validates a reviewed
+ledger against this report; see [the evidence format](EVALUATION.md).
+
 Requires Python 3.10+. The optional index also requires Git and SQLite with FTS5.
 
 ```bash

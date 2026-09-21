@@ -7,6 +7,9 @@
 3. Trace only changed execution paths and the callers or tests needed to validate a suspected issue.
 4. Confirm each finding against repository behavior. Do not report a theoretical concern without a concrete failure mode.
 5. Check whether tests cover the changed contract, not merely changed lines.
+6. For shared contracts or new functionality, check integration beyond the diff:
+   unchanged consumers, registrations, generated clients, config, permissions and
+   compatibility. Use the integration reference linked from SKILL.md when relevant.
 
 ## Findings
 

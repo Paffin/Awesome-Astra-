@@ -26,6 +26,11 @@ Otherwise load only the route that adds needed guidance:
 
 ## Conditional context
 
+For new functionality or changes to shared behavior/contracts, use
+[project-wide integration](references/integration.md): identify the canonical
+owner, trace consumers, connect the real entry point, and verify affected boundaries.
+Minimize irrelevant context, not coverage of the change's consequences.
+
 Use targeted search and bounded reads by default. Reuse facts whose sources are unchanged.
 For repeated cross-file discovery, stale context, large outputs, or delegated work, consult
 [context and handoffs](references/context.md). The bundled index is optional; do not run it for a typo.

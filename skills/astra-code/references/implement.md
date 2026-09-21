@@ -16,6 +16,8 @@ Classify the change before reading broadly:
 4. Patch the narrowest stable layer. Follow existing patterns before adding a new abstraction or dependency.
 5. Inspect the diff immediately for accidental scope, duplicated logic, debug output, and compatibility breaks.
 6. Run the nearest meaningful check: focused test, type check, linter rule, build target, or direct reproduction.
-7. Broaden verification only for shared contracts or when the focused check reveals wider impact.
+7. Verify new functionality through its real entry point. For shared contracts,
+   follow the integration reference linked from SKILL.md and close every known
+   affected consumer; a passing helper test is not completion evidence.
 
 Add or change a test when it protects a behavioral contract or prevents a plausible regression. Avoid tests that merely mirror a reversible implementation detail.

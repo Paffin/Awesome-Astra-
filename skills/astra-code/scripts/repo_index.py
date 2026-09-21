@@ -265,10 +265,10 @@ def search(db: sqlite3.Connection, root: Path, query: str, stats: dict,
     relaxed = " OR ".join(quoted)
     sql = ("SELECT excerpts.rowid,excerpts.path,start,end,symbols,body,files.digest "
            "FROM excerpts JOIN files ON files.path=excerpts.path WHERE excerpts MATCH ? "
-           "ORDER BY bm25(excerpts,0,0,0,0,8.0,12.0,1.0), excerpts.path, start LIMIT ?")
+           "ORDER BY bm25(excerpts,0,0,0,0,0,8.0,12.0,1.0), excerpts.path, start LIMIT ?")
     strict_rows = db.execute(sql, (strict, limit * 12)).fetchall()
     rows = [(row, "all-terms") for row in strict_rows]
-    if len(strict_rows) < limit * 2 and relaxed != strict:
+    if relaxed != strict:
         seen = {row[0] for row in strict_rows}
         rows.extend((row, "any-term") for row in db.execute(sql, (relaxed, limit * 12)).fetchall()
                     if row[0] not in seen)

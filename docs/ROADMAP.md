@@ -6,6 +6,11 @@ Two skill entry points; direct path for small edits; conditional context/handoff
 
 ## Next: live Astra evaluation
 
+Delivered in 0.4.0: Python AST import-fact cache, transitive impact candidates,
+explicit coverage gaps, integration workflow and reviewed-ledger validation.
+Not delivered: compiler/LSP binding, multi-language dependency resolution,
+semantic embeddings or an independently verified complete dependency graph.
+
 Run baseline versus candidate on held-out bug fixes, cross-file contracts, refactors, reviews, and instruction audits. Include cold/warm caches, repeated runs, acceptance and safety review. Publish raw redacted evidence and uncertainty before claiming savings. Static tests are not this milestone.
 
 ## Then: retrieval improvements, only when justified

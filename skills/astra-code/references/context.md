@@ -3,6 +3,9 @@
 ## Retrieve on demand
 
 Use an exact path, identifier, error text, or `rg` first. Consult callers and contracts when the change crosses boundaries. A missing search result is not proof that code does not exist.
+Never use the index's top-N results or two-chunks-per-file cap to certify complete
+impact coverage. Search exact identifiers and wire names across affected packages;
+use compiler/LSP references where available and inspect dynamic registrations.
 For repeated discovery in a larger Git repository, the optional [local index](../scripts/repo_index.py) provides lexical BM25 ranking, Python AST boundaries, and line-range fallbacks for other text. It is not semantic search, a call graph, or a substitute for reading relevant code.
 
 Run the script by its path inside this installed skill, not by guessing a path in the target repository:

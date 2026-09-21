@@ -39,6 +39,38 @@ Exit status is 0 only when the observed candidate has at least one accepted-safe
 
 ## Release policy
 
+## Integration ledger (0.4.0)
+
+Generate a fresh `project_map.py --changed path.py` report after code changes.
+Keep evidence files outside the analyzed working tree to avoid changing its
+snapshot. Provide this reviewed ledger to `tools/check_integration.py report.json ledger.json`:
+
+```json
+{
+  "snapshot_sha256": "COPY_FROM_FRESH_REPORT",
+  "consumers": {
+    "path.py": {"disposition": "changed", "evidence": "actual diff/check reference"}
+  },
+  "checks": [
+    {"kind": "entrypoint", "passed": true, "evidence": "actual command and retained result"}
+  ],
+  "coverage_review": {
+    "unresolved_imports": {"resolved": true, "evidence": "reviewed external dependency/contract evidence"}
+  }
+}
+```
+
+This is a format example, NOT an executed benchmark. Every affected candidate
+needs disposition `changed`, `compatible`, or `not-applicable` and concrete
+evidence. Every nonempty coverage-gap category needs explicit review. Do not mark
+an inaccessible consumer resolved without compatibility evidence. Exit 0 means
+the supplied ledger is complete; 1 means gaps remain; 2 means invalid input.
+The tool does not execute commands, authenticate evidence or independently prove
+correctness. Stale snapshots and helper-only checks cannot pass.
+
+There are now 30 behavioral specifications. The 59 deterministic tests and a
+separate tool-review run do not establish Astra skill effectiveness or token gains.
+
 Run deterministic validation and tests. Preserve safety constraints. For a **performance claim**, additionally run the behavior cases and real held-out repository tasks, with blind review where practical, repeated paired measurements, dispersion/uncertainty, and reproducible artifacts. Report actual evidence of regressions as well as wins.
 
 This 0.2.0 revision is a tested tooling/workflow release without an end-to-end Astra performance claim. Live model evaluation remains an explicit next gate rather than a fabricated completed benchmark.

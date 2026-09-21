@@ -40,6 +40,22 @@ See [CURSOR_INDEXING.md](docs/CURSOR_INDEXING.md) for operational limits. Cursor
 
 ## Release evidence and non-claims
 
+### 0.4.0 application of the research
+
+Astra guidance is applied as a compact conditional integration reference, not
+mandatory full-repository reading. Context minimization must not omit affected
+consumers. Cursor's indexing descriptions distinguish incremental maintenance,
+semantic discovery and exact lookup; none establishes completeness of consumers.
+The new AST map consequently labels syntactic import candidates, fingerprints
+current source, reuses unchanged facts and exposes unknowns. It is not Cursor's
+Merkle/embedding implementation and is not a compiler-backed graph.
+
+Primary pages consulted for this change: the Astra skills article and model
+guidance linked above, and Cursor's secure indexing, dynamic context discovery
+and fast regex search articles linked above. This is selected-source coverage,
+not a claim that every Astra article was read. Exact model selection remains
+`gpt-6-astra` in the host; no hidden settings, account changes or invented gains.
+
 The implementation has deterministic unit/integration tests using temporary Git repositories. Behavior cases specify intended model outcomes but are not model runs. The paired-run comparator analyzes supplied telemetry; it does not authenticate its provenance or grade correctness. No Astra benchmark, token-saving percentage, or speedup is claimed.
 
 Prior research notes remain in [the 0.1.0 repository snapshot](https://github.com/Paffin/Awesome-Astra-/blob/e96fadce24e1c635a44a13058aebc74ead662d17/RESEARCH.md). The current review focuses on the primary material directly used for this revision rather than reasserting every earlier paper's conclusion.

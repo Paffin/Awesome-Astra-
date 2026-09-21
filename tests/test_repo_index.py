@@ -72,6 +72,29 @@ class IndexTests(unittest.TestCase):
         self.assertTrue(any(item["path"] == "partial.py" and item["match"] == "any-term"
                             for item in report["results"]))
 
+    def test_symbol_weight_exceeds_path_weight(self):
+        self.write("needle.txt", "ordinary text\n")
+        self.write("z.py", "def needle():\n    pass\n")
+        report = self.search("needle")
+        self.assertEqual(report["results"][0]["path"], "z.py")
+
+    def test_fallback_fills_after_per_file_cap(self):
+        self.write("many.py", "\n".join(
+            f"def invoice_retry_{i}():\n    pass\n" for i in range(12)))
+        self.write("partial.py", "def retry_job():\n    pass\n")
+        report = self.search("invoice retry", limit=3)
+        self.assertEqual(len(report["results"]), 3)
+        self.assertEqual(report["results"][-1]["path"], "partial.py")
+
+    def test_old_schema_is_rejected_without_mutation(self):
+        self.db.execute("UPDATE meta SET value='1' WHERE key='schema'")
+        self.db.commit()
+        _, cache = index.locations(self.root)
+        with self.assertRaisesRegex(ValueError, "version/root mismatch"):
+            index.connect(cache, self.root)
+        self.assertEqual(self.db.execute(
+            "SELECT value FROM meta WHERE key='schema'").fetchone()[0], "1")
+
     def test_unchanged_files_are_not_reindexed(self):
         self.write("a.py", "value = 1\n")
         self.assertEqual(self.search("value")["stats"]["updated"], 1)
