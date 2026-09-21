@@ -1,98 +1,74 @@
-# Astra Codex Skills
+# Awesome Astra
 
-Two small, research-backed workflows for using GPT-6 Astra in Codex without turning the context window into a second codebase.
+**Lean Codex skills. Relevant code context. Verifiable results.**
 
-- `astra-code` — implement, debug, refactor, review, or design a code change with targeted context and proportionate verification.
-- `astra-repo-audit` — find and remove stale, duplicated, conflicting, or over-broad Codex instructions while preserving real safeguards.
+[Русский](README.ru.md) · [Research](RESEARCH.md) · [Cursor indexing](docs/CURSOR_INDEXING.md) · [Evaluation](EVALUATION.md) · [MIT](LICENSE)
 
-This repository is a portable [Agent Plugin](https://developers.openai.com/plugins/build/plugins) and each skill also follows the open Agent Skills layout.
+Two focused skills for GPT-6 Astra, not a giant system prompt or a mandatory agent army. The pack combines a short coding workflow, an instruction audit, and an optional local repository index. No API key, MCP server, hook, telemetry, or Python package installation is required by the bundled tools.
 
-## Why this is deliberately small
+| Skill | Purpose |
+| --- | --- |
+| [`astra-code`](skills/astra-code/SKILL.md) | Implement, debug, refactor, design, and review with targeted context and proportionate verification. |
+| [`astra-repo-audit`](skills/astra-repo-audit/SKILL.md) | Trim obsolete or conflicting Codex instructions without removing real safeguards. |
 
-GPT-6 Astra needs less procedural handholding than earlier coding models. Every installed skill description consumes always-on context, and every loaded instruction competes with the task and repository. The design therefore uses:
-
-1. two non-overlapping skill descriptions;
-2. a short router in `astra-code`;
-3. exactly one task route loaded at a time;
-4. focused repository search instead of a mandatory repo dump;
-5. the narrowest meaningful verification before broader checks;
-6. explicit completion evidence so Astra continues past a first draft.
-
-The pack does **not** claim a token, latency, or success-rate improvement without a paired evaluation. See [EVALUATION.md](EVALUATION.md) for the measurement protocol and [RESEARCH.md](RESEARCH.md) for the evidence behind each design choice.
+Version **0.2.0** adds incremental local code retrieval, safer installation, and a paired-run comparison tool. Script tests are automated. **End-to-end Astra quality, latency, and token gains have not been measured for this release.** This project is not an AGI claim or an official OpenAI product.
 
 ## Install
 
-### Ask Codex to install from GitHub
-
-After this repository is public, invoke `$skill-installer` and ask it to install either or both folders:
-
-```text
-Install astra-code and astra-repo-audit from
-https://github.com/Paffin/Awesome-Astra-/tree/main/skills
-```
-
-### Local Codex installation
-
-Clone the repository and run:
+Requires Python 3.10+. The optional index also requires Git and SQLite with FTS5.
 
 ```bash
+git clone https://github.com/Paffin/Awesome-Astra-.git
+cd Awesome-Astra-
+python3 tools/validate.py
+python3 -m unittest discover -s tests -v
 python3 scripts/install.py
 ```
 
-By default the installer copies both skills to `$HOME/.agents/skills`, the user-level location documented by Codex. It refuses to overwrite an existing skill unless `--force` is supplied; forced replacement first creates a timestamped backup.
+The GitHub repository currently has a trailing hyphen. Review downloaded code before executing it; pin a reviewed commit for reproducible deployment.
 
-Install only one skill or choose another destination:
+The installer copies to `~/.agents/skills`. Use `--skill astra-code` for only the coding skill, or `--dest /path/to/repo/.agents/skills` for project scope. Select GPT-6 Astra in your Codex host; the installer never changes model settings or approvals.
 
-```bash
-python3 scripts/install.py --skill astra-code
-python3 scripts/install.py --dest /path/to/repo/.agents/skills
-```
+Existing skills are protected. `--force` stages a complete copy before replacement and keeps the previous installation under `.astra-skill-backups` **beside**, not inside, the destination directory. An installation lock prevents overlapping writes. A crash may require inspecting and removing a stale `.astra-install-*.lock`; backups are retained for manual recovery. Transactions are per skill, not across the entire pack. Older backups already inside a skills directory are not deleted automatically.
 
-### Plugin package
-
-The repository root contains `plugin.json`, and portable hosts discover the two workflows under `skills/`. No MCP server, network permission, hook, or credential is required.
+Alternatively, ask Codex's `$skill-installer` to install `skills/astra-code` and `skills/astra-repo-audit` from this repository. The root `plugin.json` follows the portable Agent Plugins layout; GitHub publication is not marketplace publication. See [official installation and packaging documentation](https://learn.chatgpt.com/docs/build-skills).
 
 ## Use
 
-Explicit invocation is deterministic:
-
 ```text
-$astra-code fix the race in the queue worker and verify the regression.
-$astra-code review this branch against main.
-$astra-repo-audit audit this repository's AGENTS.md and skills; report only.
-$astra-repo-audit trim the instruction bloat and validate the edited skills.
+$astra-code fix the worker's retry race and verify the regression.
+$astra-code review this branch against main; report material defects only.
+$astra-repo-audit audit AGENTS.md and skills; report only, do not edit.
 ```
 
-Both skills also allow implicit invocation, but their descriptions are intentionally narrow to avoid routing unrelated work into them.
+Explicit invocation selects the intended skill; it does not make model behavior deterministic. Small edits take a direct path. Substantial tasks load one relevant implementation/debug/design/review reference. Context retrieval, delegation, and measured experiments are conditional, not mandatory preambles.
 
-## Design
-
-`astra-code` keeps only the shared operating contract in context, then selects one route:
-
-| Route | Load when |
-| --- | --- |
-| `implement.md` | Feature, refactor, migration, or ordinary code change |
-| `debug.md` | Failure, regression, flaky behavior, or incorrect output |
-| `review.md` | Pull request, branch, commit, patch, or uncommitted diff |
-| `design.md` | A consequential architecture choice blocks implementation |
-
-`astra-repo-audit` is separate because instruction maintenance is a different job and should not burden normal coding turns. Its only script, `context_budget.py`, performs a read-only deterministic inventory and clearly labels token counts as estimates.
-
-## Validate
-
-The project uses only the Python standard library:
+## Optional local code retrieval
 
 ```bash
-python3 tools/validate.py
-python3 -m unittest discover -s tests -v
+python3 skills/astra-code/scripts/repo_index.py --root /path/to/project search "invoice retry" --max-bytes 12000
+python3 skills/astra-code/scripts/repo_index.py --root /path/to/project --exclude 'internal/*' index
+python3 skills/astra-code/scripts/repo_index.py --root /path/to/project purge
 ```
 
-CI checks frontmatter, naming, links, context-size budgets, plugin metadata, eval fixtures, installer behavior, and the context-budget script.
+Run from this clone, or use the installed script's absolute path. Apply additional exclusions consistently on every invocation.
 
-## Contributing
+The index uses Git inventory, content hashes, Python AST boundaries, line-based fallbacks, and SQLite FTS5 lexical ranking. Searches refresh changed files and remove deleted/excluded entries. Results contain source paths, line ranges, hashes, and bounded excerpts. It is **not** an embedding service, a full cross-language dependency graph, or a Cursor clone. It scans eligible files on each invocation; incremental means unchanged files are not rechunked or reinserted.
 
-Changes should remove more ambiguity than they add context. Read [CONTRIBUTING.md](CONTRIBUTING.md), add or update an eval case, and include measured evidence for performance claims.
+Code stays in a per-worktree cache under Git metadata. The tool performs no network calls, but feeding results into a cloud Codex session still sends that selected context to its provider. Exclusions are not a complete secret scanner or a security boundary. Read [limits and data handling](docs/CURSOR_INDEXING.md).
 
-## License
+## Measure instead of guessing
 
-[MIT](LICENSE)
+```bash
+python3 tools/compare_runs.py /path/to/measured-runs.jsonl
+```
+
+The comparator validates paired telemetry, rejects mismatched setups, counts cached input only once, and flags observed quality/safety regressions. It neither launches nor grades a model. [EVALUATION.md](EVALUATION.md) specifies the input format and controls. The 24 behavior cases are evaluation specifications, not 24 claimed model successes.
+
+The instruction audit uses byte-based token estimates, not Astra's tokenizer or billing records. Package validation enforces two entry points, compact metadata, reference links, and byte/line budgets.
+
+## Design lineage
+
+Ponytail informs reuse and restraint; Superpowers informs causal debugging; Agency Agents informs evidence-based handoffs; Karpathy's autoresearch informs controlled experiments. Astra-specific OpenAI guidance takes precedence over inherited ceremony. No upstream skill is concatenated into this pack. [RESEARCH.md](RESEARCH.md) records adopted ideas, rejected mechanisms, and sources.
+
+[Contributing](CONTRIBUTING.md) · [Roadmap](docs/ROADMAP.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md)

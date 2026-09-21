@@ -1,6 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "astra-codex-skills",
-  "version": "0.1.0",
-  "description": "Minimal-context coding and repository-instruction audit workflows for GPT-6 Astra in Codex."
+  "version": "0.2.0",
+  "description": "Lean Astra coding skills with evidence-based verification and optional local code retrieval.",
+  "repository": "https://github.com/Paffin/Awesome-Astra-",
+  "license": "MIT"
 }
