@@ -11,7 +11,25 @@ Two focused skills for GPT-6 Astra, not a giant system prompt or a mandatory age
 | [`astra-code`](skills/astra-code/SKILL.md) | Implement, debug, refactor, design, and review with targeted context and proportionate verification. |
 | [`astra-repo-audit`](skills/astra-repo-audit/SKILL.md) | Trim obsolete or conflicting Codex instructions without removing real safeguards. |
 
-Version **0.7.0** adds scoped acceptance gates, environment-bound command receipts and real migration/retry fixtures. Checks now cover selected failure, compatibility, security and delivery risks without imposing a full checklist on every edit. **End-to-end Astra quality, latency, and token gains remain unmeasured.** This is not an official OpenAI product.
+Version **0.8.0** folds the strongest mechanisms from leading coding, security, frontend, database, infrastructure and AI skill packs into one Astra-native router. The root skill stays compact: it loads a primary workflow plus only the domain modules crossed by the task. **End-to-end Astra quality, latency, activation and token gains remain unmeasured.** This is not an official OpenAI product.
+
+## Conditional expert modules
+
+The pack does not concatenate upstream skills. `astra-code` routes only to the relevant
+original synthesis:
+
+| Boundary | Reference |
+| --- | --- |
+| Domain ownership, API/module coherence | `architecture.md` |
+| TDD, regression, property/mutation strength | `testing.md` |
+| Security-focused differential review | `security-review.md` |
+| Frontend states, accessibility, browser journey | `frontend.md` |
+| Postgres schema/query/RLS/migrations | `database.md` |
+| Terraform, containers, Kubernetes and CI/CD | `infrastructure.md` |
+| LLM/RAG/agents/local inference/evals | `ai.md` |
+
+Tiny edits still bypass this machinery. Cross-cutting changes may load several modules, but
+each one must correspond to a real affected boundary.
 
 ## Project-wide integration
 
@@ -75,7 +93,7 @@ $astra-code review this branch against main; report material defects only.
 $astra-repo-audit audit AGENTS.md and skills; report only, do not edit.
 ```
 
-Explicit invocation selects the intended skill; it does not make model behavior deterministic. Small edits take a direct path. Substantial tasks load one relevant implementation/debug/design/review reference. Context retrieval, delegation, and measured experiments are conditional, not mandatory preambles.
+Explicit invocation selects the intended skill; it does not make model behavior deterministic. Small edits take a direct path. Substantial tasks load one primary implementation/debug/design/review route plus only affected expert modules. Context retrieval, delegation, browser automation, security tooling and measured experiments remain conditional, not mandatory preambles.
 
 ## Optional local code retrieval
 
