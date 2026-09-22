@@ -1,7 +1,7 @@
 # AI, LLM, and agent changes
 
 Load for model serving, prompts, RAG, tools, local inference, training/fine-tuning, or agent
-workflows. Separate product correctness from benchmark enthusiasm, humanity's favorite hobby.
+workflows. Separate product correctness from benchmark claims and implementation assumptions.
 
 ## Contract first
 
