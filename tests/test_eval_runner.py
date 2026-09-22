@@ -84,6 +84,8 @@ class EvalRunnerTests(unittest.TestCase):
     def test_real_fixtures_reject_original_accept_known_repairs(self):
         data = json.loads((ROOT/'evals/executable.json').read_text())
         for task in data['tasks']:
+            if task['id'] not in {'shared-price', 'route-registration', 'wire-contract'}:
+                continue  # Additional fixtures have dedicated independent grader tests.
             if task['id'] == 'wire-contract' and not shutil.which('node'):
                 continue  # The external grader records 77; Python-only CI tests other fixtures.
             with self.subTest(task=task['id']), tempfile.TemporaryDirectory() as directory:

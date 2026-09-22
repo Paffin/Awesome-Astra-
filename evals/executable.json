@@ -18,6 +18,18 @@
       "project": "fixtures/behavioral/wire-contract/project",
       "check": "fixtures/behavioral/wire-contract/check.py",
       "prompt": "Rename receipt wire field amount to total_cents throughout this Python/JavaScript project and schema. This is a coordinated breaking change: remove amount from the producer output and schema, and update the real JavaScript consumer. Keep parseReceipt output formatted as \"<integer cents> <currency>\". Preserve integer values, zero, and currency. Implement and verify. Node.js is required to exercise the consumer; do not install dependencies."
+    },
+    {
+      "id": "schema-migration",
+      "project": "fixtures/behavioral/schema-migration/project",
+      "check": "fixtures/behavioral/schema-migration/check.py",
+      "prompt": "Implement app.start(path) migration of existing SQLite v1 accounts(id TEXT PRIMARY KEY, balance_cents INTEGER NOT NULL), user_version=1, to v2 with currency TEXT NOT NULL DEFAULT USD and user_version=2. Preserve IDs/balances; old clients selecting/updating balance_cents and inserting only id/balance_cents must keep working. New app.account returns balance_cents/currency or None; repeated startup must preserve non-USD rows. Negative legacy balances must raise ValueError and leave all schema, data, version unchanged. No unrelated schema or API changes."
+    },
+    {
+      "id": "retry-idempotency",
+      "project": "fixtures/behavioral/retry-idempotency/project",
+      "check": "fixtures/behavioral/retry-idempotency/check.py",
+      "prompt": "Repair app.deliver SQLite transfer so each event ID applies once atomically. Return True for newly applied delivery, False for duplicate same payload, ValueError for event-ID reuse with different source/destination/cents. Preserve simulated RuntimeError after debit, rolling back debit/credit/delivery together. Retrying after failure works; two concurrent deliveries of same event apply once. Existing valid accounts/positive sufficient amounts can be assumed; retain signatures and schema."
     }
   ]
 }

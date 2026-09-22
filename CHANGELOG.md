@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.7.0 — 2026-09-22
+
+- Add scoped acceptance criteria and risk-specific scenario coverage, bound to
+  exact plan bytes recorded before and after commands.
+- Integrate acceptance with the strict consumer ledger; unresolved external
+  boundaries and exceptions cannot silently become successful acceptance.
+- Bind new receipts to executable/runtime identities, permissions, platform and
+  explicitly declared dependency/configuration files, including external paths.
+- Add conditional migration, concurrency, security, performance, deployment,
+  recovery and user-journey instructions with behavioral specifications.
+- Add SQLite migration and retry/idempotency executable fixtures with graders
+  tested against plausible broken implementations.
+- Preserve schema-1 receipt compatibility; those legacy receipts lack environment
+  binding. No real Astra benchmark or universal language coverage is claimed.
+
+
 ## 0.6.0 — 2026-09-22
 
 - Add paired executable behavior runner with isolated baseline/candidate fixtures.

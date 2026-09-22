@@ -94,3 +94,13 @@ Reviewed source instructions and selected executable tooling, not popularity alo
 
 No external skill was concatenated, no model-specific gain follows from this
 comparison, and the v0.6 runtime is original standard-library implementation.
+
+## 0.7.0: close behavior and environment gaps
+
+Extend the previously cited independent-evaluation and evidence-before-claims
+principles to observable criteria and deliberately broken fixture variants.
+Acceptance labels are reviewed intent, not automatic semantic proof. Preserve
+negative scenarios, legacy data and durable side effects in the executable suite.
+Bind selected local environment inputs by measured hashes instead of assuming
+source equality implies environment equality. Keep external-version declarations
+explicitly unverified. This is an engineering extension, not a new benchmark claim.

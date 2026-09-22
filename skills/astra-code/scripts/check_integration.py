@@ -12,7 +12,9 @@ import json
 from pathlib import Path
 
 
-def check(report: dict, ledger: dict, root: Path | None = None, require_recorded: bool = False) -> dict:
+def check(report: dict, ledger: dict, root: Path | None = None, require_recorded: bool = False,
+          acceptance_plan: Path | None = None) -> dict:
+    require_recorded = require_recorded or acceptance_plan is not None
     errors = []
     snapshot = report.get("snapshot_sha256")
     if not isinstance(snapshot, str) or not snapshot or ledger.get("snapshot_sha256") != snapshot:
@@ -67,6 +69,14 @@ def check(report: dict, ledger: dict, root: Path | None = None, require_recorded
                     errors.extend(f"check {number}: {message}" for message in result["errors"])
                 except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
                     errors.append(f"check {number}: {exc}")
+    if acceptance_plan is not None:
+        if root is None:
+            errors.append("acceptance requires repository root")
+        else:
+            import acceptance
+            result = acceptance.check(json.loads(acceptance_plan.read_text()), ledger, root,
+                                      plan_path=acceptance_plan)
+            errors.extend(f"acceptance: {message}" for message in result["errors"])
     return {"ledger_gate_passed": not errors, "errors": errors,
             "claim": ("Reviewed ledger and local execution receipt consistency; not authenticated proof of correctness"
                       if require_recorded else "Reviewed ledger completeness only; not independent proof of whole-project correctness")}
@@ -78,9 +88,11 @@ def main() -> int:
     parser.add_argument("ledger", type=Path)
     parser.add_argument("--root", type=Path)
     parser.add_argument("--require-recorded", action="store_true")
+    parser.add_argument("--acceptance", type=Path, help="Reviewed acceptance plan; implies recorded checks")
     args = parser.parse_args()
     try:
-        result = check(json.loads(args.report.read_text()), json.loads(args.ledger.read_text()), args.root, args.require_recorded)
+        result = check(json.loads(args.report.read_text()), json.loads(args.ledger.read_text()), args.root,
+                       args.require_recorded, args.acceptance)
     except (OSError, ValueError, TypeError, AttributeError) as exc:
         parser.exit(2, f"integration-check: {exc}\n")
     print(json.dumps(result, indent=2))

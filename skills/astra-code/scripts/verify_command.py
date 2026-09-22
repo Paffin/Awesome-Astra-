@@ -12,6 +12,10 @@ import math
 import os
 from pathlib import Path
 import signal
+import shutil
+import stat
+import platform
+import sys
 import subprocess
 import threading
 import time
@@ -49,7 +53,78 @@ def stop(proc):
         pass
 
 
-def run(root, argv, receipt, timeout=60, max_log_bytes=1048576):
+def file_identity(path):
+    """Read only regular files, recording hashes rather than file contents."""
+    path = Path(path).absolute()
+    resolved = path.resolve(strict=True)
+    if not stat.S_ISREG(resolved.stat().st_mode):
+        raise ValueError("environment inputs must be regular files")
+    with resolved.open("rb") as source:
+        metadata = os.fstat(source.fileno())
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError("environment inputs must be regular files")
+        hasher = hashlib.sha256()
+        for chunk in iter(lambda: source.read(1048576), b""):
+            hasher.update(chunk)
+    identity = {"path": str(path), "resolved": str(resolved), "sha256": hasher.hexdigest(),
+                "mode": stat.S_IMODE(metadata.st_mode)}
+    if os.name == "posix":
+        identity.update(uid=metadata.st_uid, gid=metadata.st_gid)
+    return identity
+
+
+def observed_environment(root, argv, declaration=None):
+    """Bind selected inputs; facts are declarations, never external observations.
+
+    JSON: {"files": ["relative/to/declaration/lockfile", "/external/config"],
+           "facts": {"database_schema": "reviewed version"}}.
+    Facts must be non-secret JSON values; only their digest is stored. No probes
+    or shell commands are inferred or run. This does not inventory dependencies,
+    environment variables, shebang interpreters or remote services.
+    """
+    executable = argv[0]
+    if os.path.dirname(executable):
+        executable = str(root / executable) if not os.path.isabs(executable) else executable
+    else:
+        # Relative PATH entries are interpreted against the command's cwd.
+        search_path = os.pathsep.join(str(root / p) if not os.path.isabs(p) else p
+                                     for p in os.get_exec_path())
+        executable = shutil.which(executable, path=search_path)
+        if executable is None:
+            raise ValueError("command executable cannot be resolved")
+    result = {"executable": file_identity(executable),
+              "recorder_python": file_identity(sys.executable),
+              "python_version": platform.python_version(),
+              "platform": {"system": platform.system(), "release": platform.release(),
+                           "machine": platform.machine()},
+              "declaration": None}
+    if declaration is not None:
+        declaration = Path(declaration).absolute()
+        if not stat.S_ISREG(declaration.stat().st_mode):
+            raise ValueError("environment declaration must be a regular file")
+        if declaration.stat().st_size > 1048576:
+            raise ValueError("environment declaration exceeds 1 MiB")
+        raw = declaration.read_bytes()
+        config = json.loads(raw)
+        if not isinstance(config, dict) or set(config) - {"files", "facts"}:
+            raise ValueError("environment declaration requires only files and facts")
+        files, facts = config.get("files", []), config.get("facts", {})
+        if (not isinstance(files, list) or len(files) > 256 or
+                any(not isinstance(p, str) or not p or "\0" in p for p in files)):
+            raise ValueError("environment files must be at most 256 nonempty path strings")
+        if not isinstance(facts, dict):
+            raise ValueError("environment facts must be a JSON object")
+        # Reject non-standard JSON numeric values too.
+        json.dumps(facts, allow_nan=False)
+        identities = [file_identity(declaration.parent / p) for p in files]
+        result["declaration"] = {"path": str(declaration),
+            "resolved": str(declaration.resolve()), "sha256": hashlib.sha256(raw).hexdigest(),
+            "files": identities, "declared_facts_sha256": digest(facts),
+            "facts_verified": False}
+    return result
+
+
+def run(root, argv, receipt, timeout=60, max_log_bytes=1048576, environment=None):
     root, _ = repo_index.locations(Path(root))
     receipt = external_path(root, receipt)
     if not isinstance(argv, list) or not argv or any(not isinstance(a, str) or "\0" in a for a in argv):
@@ -61,6 +136,7 @@ def run(root, argv, receipt, timeout=60, max_log_bytes=1048576):
     receipt.parent.mkdir(parents=True, exist_ok=True)
     log_path = receipt.with_suffix(receipt.suffix + ".log")
     before = snapshot(root)
+    environment_before = observed_environment(root, argv, environment)
     # Exclusive creation prevents overwriting evidence from a previous run.
     with receipt.open("x", encoding="utf-8") as output:
         with log_path.open("xb") as log:
@@ -100,16 +176,25 @@ def run(root, argv, receipt, timeout=60, max_log_bytes=1048576):
             log.flush()
             duration = time.monotonic() - started
         after = snapshot(root)
-        payload = {"schema": 1, "root": str(root), "cwd": str(root), "argv": argv,
+        try:
+            environment_after = observed_environment(root, argv, environment)
+            environment_error = None
+        except (OSError, ValueError, TypeError) as exc:
+            environment_after, environment_error = None, type(exc).__name__
+        payload = {"schema": 2, "root": str(root), "cwd": str(root), "argv": argv,
                    "exit_code": proc.returncode, "timed_out": timed_out,
                    "duration_seconds": duration, "before": before, "after": after,
+                   "environment_before": environment_before, "environment_after": environment_after,
+                   "environment_error": environment_error,
                    "log": log_path.name, "log_sha256": hashlib.sha256(log_path.read_bytes()).hexdigest(),
                    "log_truncated": state["bytes_seen"] > state["bytes_saved"],
                    "output_error": state["error"],
                    "limitations": ["Local checksums are not signatures; a writer can forge this receipt",
                      "Snapshot excludes ignored, sensitive, oversized, binary and unreadable files",
                      "Snapshot is not a filesystem lock and does not identify external dependencies",
-                     "Windows descendant cleanup is not guaranteed"]}
+                     "Windows descendant cleanup is not guaranteed",
+                     "Only explicit environment files and executable identities are observed; dependencies and inherited variables are not inventoried",
+                     "Declared external facts are not automatically verified; hashes do not redact low-entropy secrets"]}
         json.dump({"payload": payload, "payload_sha256": digest(payload)}, output, indent=2)
         output.write("\n")
     return payload
@@ -125,13 +210,24 @@ def verify(root, receipt):
     errors = []
     if data.get("payload_sha256") != digest(payload):
         errors.append("receipt checksum mismatch")
-    if payload.get("schema") != 1 or payload.get("root") != str(root) or payload.get("cwd") != str(root):
+    if payload.get("schema") not in (1, 2) or payload.get("root") != str(root) or payload.get("cwd") != str(root):
         errors.append("wrong receipt schema or repository")
     log_path = receipt.with_suffix(receipt.suffix + ".log")
     if payload.get("log") != log_path.name or log_path.is_symlink() or log_path.stat().st_size > 16 * 1024 * 1024:
         errors.append("invalid log path or size")
     elif hashlib.sha256(log_path.read_bytes()).hexdigest() != payload.get("log_sha256"):
         errors.append("log checksum mismatch")
+    if payload.get("schema") == 2:
+        try:
+            previous = payload["environment_before"]
+            declaration = previous.get("declaration")
+            current_environment = observed_environment(root, payload["argv"],
+                declaration["path"] if declaration is not None else None)
+            if (previous != current_environment or payload.get("environment_after") != current_environment
+                    or payload.get("environment_error") is not None):
+                errors.append("stale environment or command modified declared inputs")
+        except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError):
+            errors.append("environment inputs unavailable or invalid")
     current = snapshot(root)
     if payload.get("before") != current or payload.get("after") != current:
         errors.append("stale receipt or command modified eligible sources")
@@ -147,12 +243,15 @@ def main():
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument("--argv", help="Explicit JSON argv; never interpreted by a shell")
+    parser.add_argument("--environment", type=Path, help="run only: explicit JSON files/facts declaration; relative files resolve beside it")
     parser.add_argument("--timeout", type=float, default=60)
     parser.add_argument("--max-log-bytes", type=int, default=1048576)
     args = parser.parse_args()
     try:
+        if args.action == "verify" and args.environment is not None:
+            raise ValueError("verify uses the environment declaration recorded in the receipt")
         if args.action == "run":
-            run(args.root, json.loads(args.argv or "null"), args.receipt, args.timeout, args.max_log_bytes)
+            run(args.root, json.loads(args.argv or "null"), args.receipt, args.timeout, args.max_log_bytes, args.environment)
         result = verify(args.root, args.receipt)
     except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.SubprocessError) as exc:
         parser.exit(2, f"verification: {exc}\n")

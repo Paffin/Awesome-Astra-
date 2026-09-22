@@ -22,7 +22,7 @@ def inspect(server_commands: list[str]) -> dict:
         db.close()
     scripts = Path(__file__).resolve().parent
     required = ["repo_index.py", "project_map.py", "project_context.py",
-                "lsp_context.py", "verify_command.py", "check_integration.py"]
+                "lsp_context.py", "verify_command.py", "check_integration.py", "acceptance.py"]
     missing = [name for name in required if not (scripts / name).is_file()]
     git = shutil.which("git")
     return {"python": sys.version.split()[0], "git": git, "sqlite_fts5": fts5,

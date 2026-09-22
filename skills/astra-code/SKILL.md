@@ -26,6 +26,11 @@ Otherwise load only the route that adds needed guidance:
 
 ## Conditional context
 
+For substantive changes, use [acceptance](references/acceptance.md). Load
+[data and failure semantics](references/data-failures.md) for migrations/retries,
+or [delivery checks](references/delivery.md) for security, performance, external
+contracts, deployment or user journeys. Apply only the affected risks.
+
 For symbol definitions and consumers in any language, use
 [language-server context](references/languages.md). Prefer the host's persistent
 compiler/LSP session; the bundled stdio client supports explicit server commands.

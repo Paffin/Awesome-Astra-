@@ -1,6 +1,6 @@
 # Evaluation and evidence
 
-## 0.6.0 evidence boundary
+## 0.7.0 evidence boundary
 
 This release implements executable paired evaluations, source-bound command
 receipts and persistent impact context. Deterministic tests exercise the real
@@ -13,8 +13,20 @@ remains unexecuted. No synthetic result is substituted for this missing evidence
 
 For execution commands and limitations see [VERIFIED_WORKFLOW.md](docs/VERIFIED_WORKFLOW.md).
 `evals/executable.json` contains runnable fixtures with external graders.
-The older `evals/*.jsonl` files are behavioral/routing specifications, not measured
+The `evals/*.jsonl` files are behavioral/routing specifications, not measured
 passes. Installed-package and protocol tests do not prove host skill activation.
+
+The five executable tasks now include SQLite legacy-data migration and atomic,
+idempotent delivery. Grader tests accept known repairs and reject plausible broken
+shortcuts (missing defaults, partial rollback, early commits, conflicting replays).
+These are deterministic fixture tests, not model solves.
+
+New schema-2 receipts bind runtime/executable identities (including permissions),
+platform and explicitly declared environment files. Schema-1 remains backward
+compatible without environment checks. External service state and declared facts
+are not automatically observed. Acceptance plans must themselves be recorded in
+source/environment snapshots before and after their checks. See
+[development checks](docs/DEVELOPMENT_CHECKS.md) for the complete CLI flow.
 
 ## Model experiment controls
 

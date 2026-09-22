@@ -1,4 +1,4 @@
-# Verified workflow (0.6.0)
+# Verified workflow (0.7.0)
 
 The runtime tools ship inside `astra-code`. The model-evaluation runner lives in
 the repository's `tools/`, because it tests skill revisions rather than solves
@@ -52,7 +52,9 @@ appropriate. Argv is explicit JSON, not shell text. Each new receipt keeps sourc
 hashes before/after, exit status, elapsed time and a bounded adjacent log.
 Existing receipts are never overwritten. Receipts/logs must be outside the repo.
 Source edits, failed commands, timeouts and altered logs invalidate verification.
-Ignored and excluded files, dependencies and external systems are not covered.
+Ignored/excluded files and external systems are not automatically covered.
+Use `--environment` to bind explicitly selected dependency/configuration files;
+see [development checks](DEVELOPMENT_CHECKS.md).
 Checksums detect accidental changes, not forgery by a writer of both files.
 
 Complete the reviewed consumer ledger from [EVALUATION.md](../EVALUATION.md), then:
@@ -91,7 +93,8 @@ the retained trace. There is no invented trigger-success percentage.
 The runner freezes fixtures/skill/graders, creates separate Git workspaces,
 alternates variant order over repetitions, and keeps prompts, traces, diffs,
 final workspaces, command outcomes and input provenance. Independent graders
-exercise shared pricing, route registration and a Python/JavaScript wire contract.
+exercise shared pricing, route registration, a Python/JavaScript wire contract,
+SQLite legacy-data migration and concurrent retry/idempotency behavior.
 Node.js is required for the cross-language fixture; missing tooling never passes.
 `--synthetic` labels harness tests, not Astra runs. Missing token usage stays null.
 The CLI returns 1 if any case fails; failures are retained for comparison.

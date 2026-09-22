@@ -39,7 +39,7 @@ class InstallTests(unittest.TestCase):
         self.assertTrue(data["ready"])
         self.assertIsNone(data["servers"][0]["executable"])
         self.assertFalse(data["servers"][0]["references_verified"])
-        for name in ("verify_command.py", "project_context.py", "check_integration.py"):
+        for name in ("verify_command.py", "project_context.py", "check_integration.py", "acceptance.py"):
             result = subprocess.run([sys.executable, str(target / "scripts" / name), "--help"],
                                     cwd=unrelated, capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)

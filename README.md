@@ -11,7 +11,7 @@ Two focused skills for GPT-6 Astra, not a giant system prompt or a mandatory age
 | [`astra-code`](skills/astra-code/SKILL.md) | Implement, debug, refactor, design, and review with targeted context and proportionate verification. |
 | [`astra-repo-audit`](skills/astra-repo-audit/SKILL.md) | Trim obsolete or conflicting Codex instructions without removing real safeguards. |
 
-Version **0.6.0** adds recorded command evidence, persistent before/after impact context and an executable paired-evaluation runner. The installed skill includes all runtime tools. External language servers and model executors remain separate. **End-to-end Astra quality, latency, and token gains have not been measured.** This is not an official OpenAI product.
+Version **0.7.0** adds scoped acceptance gates, environment-bound command receipts and real migration/retry fixtures. Checks now cover selected failure, compatibility, security and delivery risks without imposing a full checklist on every edit. **End-to-end Astra quality, latency, and token gains remain unmeasured.** This is not an official OpenAI product.
 
 ## Project-wide integration
 
@@ -95,9 +95,10 @@ Code stays in a per-worktree cache under Git metadata. The tool performs no netw
 
 ## Recorded checks and persistent context
 
-See [the v0.6 workflow](docs/VERIFIED_WORKFLOW.md) for command receipts, retained
+See [the verified workflow](docs/VERIFIED_WORKFLOW.md) for command receipts, retained
 pre-change consumers, hash-bound cross-language contract declarations and the
-executable baseline/candidate runner. Use `scripts/doctor.py` inside the installed
+executable baseline/candidate runner. The [development checks](docs/DEVELOPMENT_CHECKS.md)
+show how acceptance criteria, environment identity and risk-specific scenarios connect. Use `scripts/doctor.py` inside the installed
 skill to check bundled dependencies; it does not start or install language servers.
 
 ## Measure instead of guessing

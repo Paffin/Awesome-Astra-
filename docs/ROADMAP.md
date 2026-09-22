@@ -1,6 +1,6 @@
 # Evidence-gated roadmap
 
-## Delivered through 0.6.0
+## Delivered through 0.7.0
 
 - Two compact skill entry points with conditional references and standalone tools.
 - Per-worktree lexical index, Python AST import facts and generic stdio LSP client.
@@ -9,6 +9,10 @@
 - Actual command receipts and strict inventory/receipt freshness verification.
 - Executable paired fixture runner, Codex CLI adapter, frozen graders and provenance.
 - Installed-runtime diagnostics and independent regression review.
+- Scoped acceptance criteria and risk scenarios with pre/post plan provenance.
+- Runtime/executable identity and explicit dependency/configuration evidence.
+- Migration, rollback, duplicate-delivery and concurrency evaluation fixtures.
+- Conditional delivery/security/performance/user-journey workflow references.
 
 ## Remaining evidence gates
 
