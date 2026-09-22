@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.8.0 — 2026-09-22
+
+- Fuse leading architecture, debugging, testing, security, frontend, Postgres,
+  infrastructure and AI skill patterns into conditional Astra modules.
+- Keep one compact primary router instead of stacking competing always-on workflows.
+- Require canonical domain ownership and vertical integration so new code does not
+  become a disconnected functional appendix.
+- Add differential security review, risk-proportional property/mutation testing,
+  browser-journey verification, database/RLS/index guidance, IaC plan reasoning and
+  model-serving/evaluation contracts.
+- Strengthen repository-instruction auditing for routing collisions and anti-triggers.
+- Add nine behavior specifications covering the new expert boundaries.
+- No upstream skill text/code is vendored and no Astra quality/token gain is claimed.
+
+
 ## 0.7.0 — 2026-09-22
 
 - Add scoped acceptance criteria and risk-specific scenario coverage, bound to

@@ -1,6 +1,6 @@
 # Evidence-gated roadmap
 
-## Delivered through 0.7.0
+## Delivered through 0.8.0
 
 - Two compact skill entry points with conditional references and standalone tools.
 - Per-worktree lexical index, Python AST import facts and generic stdio LSP client.
@@ -13,6 +13,7 @@
 - Runtime/executable identity and explicit dependency/configuration evidence.
 - Migration, rollback, duplicate-delivery and concurrency evaluation fixtures.
 - Conditional delivery/security/performance/user-journey workflow references.
+- Conditional architecture, testing, security-review, frontend, Postgres, infrastructure and AI expert modules with behavior specifications.
 
 ## Remaining evidence gates
 

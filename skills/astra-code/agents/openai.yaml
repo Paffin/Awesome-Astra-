@@ -1,7 +1,7 @@
 interface:
   display_name: "Astra Code"
-  short_description: "Fast, precise coding with minimal context"
-  default_prompt: "Use $astra-code to implement this task with minimal context and proportionate verification."
+  short_description: "Coherent coding with targeted expert context"
+  default_prompt: "Use $astra-code to implement this task through the existing project path, load only affected expert modules, and verify the real outcome."
   icon_small: "./assets/icon.svg"
   icon_large: "./assets/icon.svg"
 policy:

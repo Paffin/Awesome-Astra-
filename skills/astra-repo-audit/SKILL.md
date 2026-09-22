@@ -1,30 +1,44 @@
 ---
 name: astra-repo-audit
-description: Audit and trim Codex AGENTS.md, skills, and configuration for GPT-6 Astra context cost, conflicts, and overscoped instructions.
+description: Audit and trim Codex AGENTS.md, skills, and configuration for GPT-6 Astra context cost, routing collisions, conflicts, and overscoped instructions.
 ---
 
 # Astra Repo Audit
 
 ## Audit
 
-1. Resolve the repository root and the instructions applicable to the requested working directory. Include `AGENTS.md`, `.agents/skills/**/SKILL.md`, and relevant `.codex/config.toml` files. Exclude dependencies, generated output, and vendor trees.
-2. Run the bundled `scripts/context_budget.py` by its path inside this skill and pass the repository root for a deterministic inventory. Treat token counts as rough estimates, not billing data.
-3. Classify every instruction as:
-   - global and non-obvious;
-   - conditional on a task or path;
-   - duplicated, obsolete, or already handled well by Astra;
-   - conflicting or capable of stopping safe progress.
-4. Preserve project-specific commands, invariants, safety boundaries, and irreversible-action approvals.
-5. Remove generic model coaching, repeated rules, unconditional pre-reading, compulsory broad test runs, and progress-report requirements that do not improve the result.
-6. Move conditional detail into the nearest task-specific document or skill. Keep root documents as routers, and keep skill descriptions narrow enough to trigger only on their real workflow.
-7. Re-run the inventory and validate every edited skill. Inspect the diff for lost constraints or broadened permissions.
+1. Resolve the repository root and instructions applicable to the requested working directory.
+   Include relevant `AGENTS.md`, installed/project skills, and Codex configuration. Exclude
+   dependencies, generated output, vendors, and unrelated repositories.
+2. Run the bundled `scripts/context_budget.py` from this installed skill for a deterministic
+   inventory. Token counts are rough estimates, not billing or the Astra tokenizer.
+3. Map each instruction to one of: global invariant, path/task-specific rule, real failure
+   safeguard, duplicated/model-coaching text, obsolete rule, routing trigger, or conflict.
+4. Check skill descriptions as a routing surface. Flag broad or overlapping triggers, duplicate
+   responsibilities, instructions that force unrelated workflows, and skills whose body belongs
+   in a conditional reference.
+5. Preserve project-specific commands, architecture/domain invariants, security controls,
+   production approvals, destructive-action boundaries, and evidence requirements.
+6. Remove generic coaching, repeated rules, unconditional repository pre-reading, mandatory
+   agent armies, self-rating loops, and broad test rituals that do not correspond to a failure
+   mode or task consequence.
+7. Keep root instructions as a router. Move detail to the nearest conditional reference. Make
+   each skill own one coherent responsibility rather than merging every useful idea into one
+   always-loaded prompt.
+8. Re-run the inventory and repository validator. Add or update a nearby positive trigger case
+   and a confusing anti-trigger when routing semantics changed. Real host activation remains
+   unproven until tested in the host.
+9. Inspect the diff for deleted safeguards, broadened authority, contradictory instructions,
+   and accidental context growth.
 
 ## Mutation boundary
 
-If the user asked only for an audit, report proposed edits without changing files. If the user asked to optimize, trim, fix, or update the repository, apply the edits and verify them.
-
-Do not weaken security, production, credential, deployment, or destructive-action controls without explicit authorization.
+If the user asked only for an audit, report proposed edits without changing files. If asked to
+optimize, trim, fix, or update, apply the edits and verify them. Never weaken security,
+production, credential, deployment, or destructive-action controls without explicit authority.
 
 ## Result
 
-Report before/after size and estimated context, the instructions removed or rerouted, safeguards preserved, validation performed, and any unresolved conflict. Do not claim runtime or quality gains that were not measured.
+Report what moved or was removed, safeguards preserved, routing collisions resolved, structural
+validation performed, and any remaining uncertainty. Give before/after size or context estimates
+when measured. Do not claim runtime, quality, activation, or token gains that were not measured.
