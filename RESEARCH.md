@@ -69,3 +69,28 @@ not a claim that every Astra article was read. Exact model selection remains
 The implementation has deterministic unit/integration tests using temporary Git repositories. Behavior cases specify intended model outcomes but are not model runs. The paired-run comparator analyzes supplied telemetry; it does not authenticate its provenance or grade correctness. No Astra benchmark, token-saving percentage, or speedup is claimed.
 
 Prior research notes remain in [the 0.1.0 repository snapshot](https://github.com/Paffin/Awesome-Astra-/blob/e96fadce24e1c635a44a13058aebc74ead662d17/RESEARCH.md). The current review focuses on the primary material directly used for this revision rather than reasserting every earlier paper's conclusion.
+
+## 0.6.0: comparative skill research (2026-09-22)
+
+Reviewed source instructions and selected executable tooling, not popularity alone:
+
+- [Anthropic trigger evaluation](https://github.com/anthropics/skills/blob/main/skills/skill-creator/scripts/run_eval.py)
+  and [blind comparison](https://github.com/anthropics/skills/blob/main/skills/skill-creator/agents/comparator.md):
+  separate selection behavior from output quality; keep judges independent.
+- [Addy Osmani evaluation tiers](https://github.com/addyosmani/agent-skills/blob/main/evals/README.md):
+  adopt executable fixture-based runs and distinguish structural tests from behavior.
+  Do not present lexical routing scores as measured host activation.
+- [Graphify incremental updates](https://github.com/Graphify-Labs/graphify/blob/v8/graphify/watch.py):
+  retain project context across changes. Our implementation keeps an explicit baseline
+  plus refreshed current graph; no upstream watcher code or claimed graph completeness.
+- [Matt Pocock architecture skill](https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md):
+  preserve domain ownership and decision rationale in reviewed source-bound facts.
+- [ECC edit hook](https://github.com/affaan-m/ECC/blob/main/.cursor/hooks/after-file-edit.js):
+  execution integration matters. We expose explicit local commands rather than install
+  host-specific hooks or automatically execute repository-supplied commands.
+- [Superpowers completion verification](https://github.com/obra/superpowers/blob/main/skills/verification-before-completion/SKILL.md):
+  bind claims to observed evidence; use source freshness rather than repeat checks
+  solely because another message has elapsed.
+
+No external skill was concatenated, no model-specific gain follows from this
+comparison, and the v0.6 runtime is original standard-library implementation.

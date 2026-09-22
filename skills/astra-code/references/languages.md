@@ -6,6 +6,10 @@ selected stdio Language Server Protocol server advertising references support.
 There is no fixed language allowlist. This is protocol support, not a claim that
 every server or language has been tested.
 
+Run bundled `scripts/doctor.py --server-command gopls` to check executable
+availability and skill dependencies without launching servers. Supply any server
+executable; discovery is not a compatibility test.
+
 ## Select the actual project toolchain
 
 Read the affected package's build metadata and use its existing server/toolchain.

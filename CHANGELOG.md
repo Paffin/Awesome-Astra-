@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 — 2026-09-22
+
+- Add paired executable behavior runner with isolated baseline/candidate fixtures.
+- Record real command results with bounded logs and source-bound receipts.
+- Add strict recorded-evidence mode to the integration checker.
+- Preserve pre-change import consumers across deletions and renames.
+- Add hash-bound, language-neutral reviewed contract/architecture declarations.
+- Add installed-runtime diagnostics without starting language servers.
+- Keep model measurements separate from synthetic harness tests.
+
+
 ## 0.5.0 — 2026-09-22
 
 - Add generic stdio LSP reference client with explicit server argv/language ID,

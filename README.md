@@ -11,11 +11,9 @@ Two focused skills for GPT-6 Astra, not a giant system prompt or a mandatory age
 | [`astra-code`](skills/astra-code/SKILL.md) | Implement, debug, refactor, design, and review with targeted context and proportionate verification. |
 | [`astra-repo-audit`](skills/astra-repo-audit/SKILL.md) | Trim obsolete or conflicting Codex instructions without removing real safeguards. |
 
-Version **0.5.0** adds language-independent stdio LSP reference queries and makes the coding skill self-contained, including its integration checker. External language servers are not bundled or installed automatically. **End-to-end Astra quality, latency, and token gains have not been measured for this release.** This is not an official OpenAI product.
+Version **0.6.0** adds recorded command evidence, persistent before/after impact context and an executable paired-evaluation runner. The installed skill includes all runtime tools. External language servers and model executors remain separate. **End-to-end Astra quality, latency, and token gains have not been measured.** This is not an official OpenAI product.
 
-## Install
-
-### 0.4.0: integrated changes, not isolated helpers
+## Project-wide integration
 
 The skill now requires tracing changed contracts to consumers and verifying the
 real entrypoint. For Python, a bundled impact map caches AST import facts by hash:
@@ -30,6 +28,8 @@ not compiler binding or a universal call graph. Unchanged facts are reused;
 changed/deleted files invalidate the map. It refuses oversized output rather
 than silently omitting consumers. `tools/check_integration.py` validates a reviewed
 ledger against this report; see [the evidence format](EVALUATION.md).
+
+## Install
 
 Requires Python 3.10+. The optional index also requires Git and SQLite with FTS5.
 
@@ -93,13 +93,20 @@ If you used the 0.2.0 index, run `purge` once before the first 0.3.0 search; sch
 
 Code stays in a per-worktree cache under Git metadata. The tool performs no network calls, but feeding results into a cloud Codex session still sends that selected context to its provider. Exclusions are not a complete secret scanner or a security boundary. Read [limits and data handling](docs/CURSOR_INDEXING.md).
 
+## Recorded checks and persistent context
+
+See [the v0.6 workflow](docs/VERIFIED_WORKFLOW.md) for command receipts, retained
+pre-change consumers, hash-bound cross-language contract declarations and the
+executable baseline/candidate runner. Use `scripts/doctor.py` inside the installed
+skill to check bundled dependencies; it does not start or install language servers.
+
 ## Measure instead of guessing
 
 ```bash
 python3 tools/compare_runs.py /path/to/measured-runs.jsonl
 ```
 
-The comparator validates paired telemetry, rejects mismatched setups, counts cached input only once, and flags observed quality/safety regressions. It neither launches nor grades a model. [EVALUATION.md](EVALUATION.md) specifies the input format and controls. The 24 behavior cases are evaluation specifications, not 24 claimed model successes.
+The comparator validates paired telemetry, rejects mismatched setups, counts cached input only once, and flags observed quality/safety regressions. It neither launches nor grades a model. [EVALUATION.md](EVALUATION.md) specifies the input format and controls. Behavior specifications are separate from executed model results.
 
 The instruction audit uses byte-based token estimates, not Astra's tokenizer or billing records. Package validation enforces two entry points, compact metadata, reference links, and byte/line budgets.
 

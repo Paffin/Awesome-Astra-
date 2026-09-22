@@ -1,98 +1,104 @@
-# Evaluation protocol
+# Evaluation and evidence
 
-## 0.5.0 language-server evidence
+## 0.6.0 evidence boundary
 
-69 deterministic tests pass, including installed-skill tools, UTF-16 positions,
-configuration callbacks, capability/error handling, stalled pipe writes and
-inherited-pipe cleanup. Protocol fixtures are synthetic and labeled accordingly.
+This release implements executable paired evaluations, source-bound command
+receipts and persistent impact context. Deterministic tests exercise the real
+subprocess/filesystem paths with explicitly synthetic executors. They are not
+Astra task-success, latency or token-saving measurements.
 
-Live smoke tests ran on 2026-09-22 with jedi-language-server 0.47.0 (Python) and
-typescript-language-server 4.3.3 + TypeScript 5.7.3. Both returned the declaration,
-consumer import and consumer call in the committed two-file fixtures. TypeScript
-initially returned only the declaration; explicitly opening its consumer before
-querying returned the cross-file references. This limitation is retained in docs.
+The live Codex adapter was attempted in the development environment and stopped
+with `Codex CLI not installed; no model run performed`. Live model evaluation
+remains unexecuted. No synthetic result is substituted for this missing evidence.
 
-Reproduce with separately installed servers (absolute executable paths):
+For execution commands and limitations see [VERIFIED_WORKFLOW.md](docs/VERIFIED_WORKFLOW.md).
+`evals/executable.json` contains runnable fixtures with external graders.
+The older `evals/*.jsonl` files are behavioral/routing specifications, not measured
+passes. Installed-package and protocol tests do not prove host skill activation.
 
-```bash
-python3 tools/live_lsp_check.py --language python --server '["/path/to/jedi-language-server"]'
-python3 tools/live_lsp_check.py --language typescript --server '["/path/to/typescript-language-server","--stdio"]'
-```
+## Model experiment controls
 
-No other language-server compatibility is claimed as tested. No Astra quality,
-latency or token-saving measurement follows from these protocol/tool smoke tests.
+Fix model, reasoning effort, host/version/configuration, repository/skill revision,
+task, tools/permissions, time budget and cache conditions. Use fresh sessions and
+isolated evaluation environments with no global copy of the candidate skill.
+Alternate variant order; repeat noisy tasks and retain failures/retries. Keep
+held-out evaluation criteria outside the implementation workspace and independently
+inspect outcome and scope. The local runner checks grader hashes; that does not
+sandbox hostile code with filesystem access to the evaluator.
 
-Use paired runs to compare skill revisions. Script tests, instruction byte counts, and subjective impressions do not measure model success.
+`tools/run_evals.py` saves provenance and per-run output directories, JSONL outcomes,
+final workspace copies and an aggregate summary. `accepted` covers the fixture's
+assertions only. The runner does not independently grade safety or model reasoning,
+and reports missing usage as null. Inspect traces for implicit skill activation;
+use the Codex adapter's explicit invocation mode as a distinct experiment.
 
-## Controls and evidence
+## Recorded integration checks
 
-Keep the model, reasoning effort, repository revision, prompt, tools/permissions, environment, time/retry budget, and cache conditions equivalent within each pair. Use clean isolated worktrees and fresh sessions. Alternate/randomize variant order; repeat noisy tasks and retain failures, retries, prompts, traces, diffs, command logs, and independent grader output.
-
-Measure requested behavior, process/scope, correctness/security/maintainability, and efficiency. Passing tests are one signal; inspect the requested behavior and final diff. Do not let the candidate edit its evaluator or held-out cases. Attribute results to the exact model/harness/settings, not all future releases.
-
-`evals/cases.jsonl` and `evals/advanced.jsonl` contain 24 routing and behavioral specifications, including anti-triggers, secret exfiltration instructions, stale source, dirty worktrees, unavailable workers, and overly broad verification. Their presence does not mean Astra passed them.
-
-## Paired telemetry comparator
-
-```bash
-python3 tools/compare_runs.py /path/to/measured-runs.jsonl
-```
-
-Each nonempty JSONL line must have:
-
-| Field | Meaning |
-| --- | --- |
-| `run_id` | Unique actual run identifier. |
-| `task_id`, `repeat` | Shared task identity and nonnegative repetition index for the pair. |
-| `variant` | `baseline` or `candidate`. |
-| `setup` | Object containing exactly `model`, `harness`, `repo_revision`, `environment`, `reasoning_effort`, `cache_state`; each is a nonempty string. Include the relevant versions and policy/budget identity. |
-| `input_tokens` | Actual total input usage across all attempts, including its cached subset. |
-| `cached_input_tokens` | Actual subset of input tokens reported as cached. |
-| `output_tokens` | Actual output usage; do not add reasoning tokens again when the host includes them here. |
-| `elapsed_seconds` | Positive finite end-to-end elapsed time. |
-| `accepted`, `safety_passed` | Explicit independent evaluation booleans. |
-| `evidence` | Location/identifier of retained traces, checks, and grader evidence. |
-
-No fabricated example benchmark is included. Unit-test fixtures use explicitly synthetic data and must not be reported as model measurements. Collect one row per variant per task/repetition, summing retries within that row. Missing usage is unknown: do not substitute zero or byte estimates. Use a separate qualitative report when the host lacks telemetry.
-
-The tool rejects missing partners, duplicate runs, incompatible pair setups, negative or non-finite values, and impossible cache counts. Total tokens are `input_tokens + output_tokens`; cached input is not counted twice. Token counts are not prices: actual cost also depends on provider rates, cache writes, service tier, and context thresholds.
-
-Exit status is 0 only when the observed candidate has at least one accepted-safe result, no safety failures, and no pair that regresses from an accepted-safe baseline. Status 1 means the observed gate fails; status 2 means invalid data. This conservative gate is not a statistical noninferiority test. Reports flag heterogeneous setups and provide descriptive medians; inspect strata and distribution before generalizing.
-
-## Release policy
-
-## Integration ledger (0.4.0)
-
-Generate a fresh `project_map.py --changed path.py` report after code changes.
-Keep evidence files outside the analyzed working tree to avoid changing its
-snapshot. Provide this reviewed ledger to `tools/check_integration.py report.json ledger.json`:
+The legacy ledger mode checks completeness. `--root /repo --require-recorded`
+also verifies current impact inventory and every supplied command receipt.
+Generate the fresh impact report after editing, outside the target tree.
+A minimal ledger shape is:
 
 ```json
 {
   "snapshot_sha256": "COPY_FROM_FRESH_REPORT",
   "consumers": {
-    "path.py": {"disposition": "changed", "evidence": "actual diff/check reference"}
+    "path.py": {"disposition": "changed", "evidence": "diff and acceptance reference"}
   },
   "checks": [
-    {"kind": "entrypoint", "passed": true, "evidence": "actual command and retained result"}
+    {"kind": "entrypoint", "passed": true, "evidence": "command exercises real route",
+     "receipt": "/evidence/entrypoint.json"}
   ],
   "coverage_review": {
-    "unresolved_imports": {"resolved": true, "evidence": "reviewed external dependency/contract evidence"}
+    "unresolved_imports": {"resolved": true, "evidence": "external dependency reviewed"}
   }
 }
 ```
 
-This is a format example, NOT an executed benchmark. Every affected candidate
-needs disposition `changed`, `compatible`, or `not-applicable` and concrete
-evidence. Every nonempty coverage-gap category needs explicit review. Do not mark
-an inaccessible consumer resolved without compatibility evidence. Exit 0 means
-the supplied ledger is complete; 1 means gaps remain; 2 means invalid input.
-The tool does not execute commands, authenticate evidence or independently prove
-correctness. Stale snapshots and helper-only checks cannot pass.
+Every affected candidate needs `changed`, `compatible` or `not-applicable` plus
+specific evidence. Every nonempty gap category needs review, including stale
+contract declarations. A receipt does not authenticate its writer or prove that
+the recorded test is sufficient. Covered source edits invalidate it; ignored,
+secret, binary, oversized and unreadable files and external state are not covered.
+Never mark an inaccessible consumer resolved without compatibility evidence.
 
-There are now 30 behavioral specifications. The 59 deterministic tests and a
-separate tool-review run do not establish Astra skill effectiveness or token gains.
+## Paired telemetry comparator
 
-Run deterministic validation and tests. Preserve safety constraints. For a **performance claim**, additionally run the behavior cases and real held-out repository tasks, with blind review where practical, repeated paired measurements, dispersion/uncertainty, and reproducible artifacts. Report actual evidence of regressions as well as wins.
+`python3 tools/compare_runs.py measured-runs.jsonl` compares separately collected
+actual telemetry. Runner output with null usage is deliberately not valid input.
+Required fields per line:
 
-This 0.2.0 revision is a tested tooling/workflow release without an end-to-end Astra performance claim. Live model evaluation remains an explicit next gate rather than a fabricated completed benchmark.
+| Field | Meaning |
+| --- | --- |
+| `run_id` | Unique actual run identifier. |
+| `task_id`, `repeat` | Pair identity and nonnegative repetition number. |
+| `variant` | `baseline` or `candidate`. |
+| `setup` | Exactly `model`, `harness`, `repo_revision`, `environment`, `reasoning_effort`, `cache_state`; nonempty strings identifying versions, policy and budget. |
+| `input_tokens` | Actual total input usage, including cached subset, across retries. |
+| `cached_input_tokens` | Reported cached subset; never added again. |
+| `output_tokens` | Actual output usage. |
+| `elapsed_seconds` | Positive finite end-to-end duration. |
+| `accepted`, `safety_passed` | Explicit independently evaluated booleans. |
+| `evidence` | Retained traces, logs and grader evidence. |
+
+The comparator rejects unpaired runs, mismatched setups, duplicate IDs and invalid
+usage. Total is input + output, not a monetary cost. Exit 0 requires at least one
+accepted-safe candidate, no candidate safety failures and no pair regressing from
+an accepted-safe baseline. Exit 1 is observed regression, 2 invalid data. This is
+not a statistical noninferiority test. Report uncertainty and heterogeneous setups.
+
+## Earlier live language-server evidence
+
+On 2026-09-22 two-file fixtures passed with jedi-language-server 0.47.0 and
+typescript-language-server 4.3.3 + TypeScript 5.7.3. TypeScript initially returned
+only the definition until its consumer document was explicitly opened. These
+results do not establish complete indexing or compatibility with other servers.
+Reproduce using `tools/live_lsp_check.py --language python|typescript --server`
+with a separately installed explicit JSON server argv. No automatic installation.
+
+## Release gate
+
+Run structural validation and deterministic tests; inspect integration behavior.
+Before any model-performance claim, additionally run paired held-out tasks,
+independent assessment, repeated measurements and publish reproducible redacted
+artifacts including failures. Never manufacture missing telemetry or outcomes.

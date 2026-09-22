@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -23,6 +26,23 @@ class InstallTests(unittest.TestCase):
         self.assertTrue((target / "SKILL.md").is_file())
         with self.assertRaises(FileExistsError):
             install_skills.install("astra-code", self.destination, False)
+
+    def test_installed_runtime_is_self_contained(self):
+        target = install_skills.install("astra-code", self.destination, False)
+        unrelated = Path(self.tmp.name) / "unrelated"
+        unrelated.mkdir()
+        report = subprocess.run([sys.executable, str(target / "scripts/doctor.py"),
+                                 "--server-command", "astra-test-missing-server"],
+                                cwd=unrelated, capture_output=True, text=True, timeout=10)
+        self.assertEqual(report.returncode, 0, report.stderr)
+        data = json.loads(report.stdout)
+        self.assertTrue(data["ready"])
+        self.assertIsNone(data["servers"][0]["executable"])
+        self.assertFalse(data["servers"][0]["references_verified"])
+        for name in ("verify_command.py", "project_context.py", "check_integration.py"):
+            result = subprocess.run([sys.executable, str(target / "scripts" / name), "--help"],
+                                    cwd=unrelated, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_force_creates_backup_outside_discovery(self):
         target = install_skills.install("astra-code", self.destination, False)

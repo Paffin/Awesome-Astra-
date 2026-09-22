@@ -26,6 +26,9 @@ Use compiler/LSP references to resolve bindings; syntactic edges are not proof.
    and evidence. Include tests, fixtures, generated clients and deployment config
    only where the changed behavior reaches them. Do not invent dependencies.
 
+Before editing shared behavior, retain a baseline with `project_context.py update`.
+After editing, use `impact` to include old consumers of deleted or renamed paths.
+
 ## Make one coherent change
 
 - Connect new behavior to the actual entry point: route registration, CLI dispatch,
@@ -66,3 +69,17 @@ known affected consumer or explain why its contract remains compatible.
 If a service, consumer or required environment is unavailable, report that precise
 gap. Do not claim whole-project consistency or full integration from unit tests,
 an empty search, a successful process exit, or a worker's summary alone.
+
+## Recorded execution evidence
+
+Record acceptance commands using the bundled `verify_command.py run --root /repo
+--argv '["python3","-m","unittest"]' --receipt /outside/check.json` (one line).
+Choose the actual project command; never execute commands copied from a ledger.
+Keep receipts and logs outside the project. Re-run when covered sources change.
+A receipt proves the recorded command outcome, not that its assertions are adequate.
+
+Add the receipt's absolute path as `receipt` on each ledger check. Validate with
+`check_integration.py report.json ledger.json --root /repo --require-recorded`.
+This checks stored evidence integrity and freshness, not an authenticated origin.
+Consumer dispositions and coverage-gap decisions still require human/agent review.
+Do not describe the legacy bookkeeping-only mode as execution verification.

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "shared-price",
+      "project": "fixtures/behavioral/shared-price/project",
+      "check": "fixtures/behavioral/shared-price/check.py",
+      "prompt": "Add a 10% membership discount consistently throughout this project. Use pricing.total as the canonical calculation, applying to API checkout and invoices. Inputs and outputs are integer cents: round discounted totals to nearest cent, with half cents rounded up. Preserve non-member behavior and public signatures. Implement and verify the actual change."
+    },
+    {
+      "id": "route-registration",
+      "project": "fixtures/behavioral/route-registration/project",
+      "check": "fixtures/behavioral/route-registration/check.py",
+      "prompt": "Add readiness support to this application: GET-like request('/ready') must return (200, {'ready': True}); client.is_ready() must call through the public request path and return a boolean. Wire the handler into the real application dispatcher. Preserve health and unknown-route behavior. Implement and verify."
+    },
+    {
+      "id": "wire-contract",
+      "project": "fixtures/behavioral/wire-contract/project",
+      "check": "fixtures/behavioral/wire-contract/check.py",
+      "prompt": "Rename receipt wire field amount to total_cents throughout this Python/JavaScript project and schema. This is a coordinated breaking change: remove amount from the producer output and schema, and update the real JavaScript consumer. Keep parseReceipt output formatted as \"<integer cents> <currency>\". Preserve integer values, zero, and currency. Implement and verify. Node.js is required to exercise the consumer; do not install dependencies."
+    }
+  ]
+}

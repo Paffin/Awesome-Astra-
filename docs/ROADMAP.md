@@ -1,28 +1,28 @@
 # Evidence-gated roadmap
 
-## Delivered through 0.3.0
+## Delivered through 0.6.0
 
-Two skill entry points; direct path for small edits; conditional context/handoff/experiment guidance; local incremental weighted lexical index with common-language declaration hints; safer per-skill installation; portable and Codex plugin manifests; paired telemetry comparator; deterministic tests and 24 behavioral evaluation specifications.
+- Two compact skill entry points with conditional references and standalone tools.
+- Per-worktree lexical index, Python AST import facts and generic stdio LSP client.
+- Persistent pre-change baseline plus current impact graph; old consumers survive deletion.
+- Hash-bound reviewed ownership/contract declarations across languages.
+- Actual command receipts and strict inventory/receipt freshness verification.
+- Executable paired fixture runner, Codex CLI adapter, frozen graders and provenance.
+- Installed-runtime diagnostics and independent regression review.
 
-## Next: live Astra evaluation
+## Remaining evidence gates
 
-Delivered in 0.4.0: Python AST import-fact cache, transitive impact candidates,
-explicit coverage gaps, integration workflow and reviewed-ledger validation.
-Not delivered: compiler/LSP binding, multi-language dependency resolution,
-semantic embeddings or an independently verified complete dependency graph.
+1. Execute real Astra baseline/candidate runs on held-out repositories; publish
+   outcomes and uncertainty before claiming quality/token/latency improvements.
+2. Test implicit skill activation and competing installed skills in the real host;
+   fixture success alone is not proof of activation.
+3. Extend live server compatibility beyond Python/TypeScript, with compiler bindings,
+   monorepo builds, reexports and background-index readiness fixtures.
+4. Evaluate persistent host LSP and optional watcher only when repeated-work timings
+   justify the runtime lifecycle cost. Current refresh reads eligible source bytes.
+5. Add contract discovery adapters for real schemas/generators when validated projects
+   justify them. Reviewed declarations do not automatically discover all consumers.
+6. Evaluate Windows/macOS process lifecycle and host packaging before claiming parity.
 
-Run baseline versus candidate on held-out bug fixes, cross-file contracts, refactors, reviews, and instruction audits. Include cold/warm caches, repeated runs, acceptance and safety review. Publish raw redacted evidence and uncertainty before claiming savings. Static tests are not this milestone.
-
-## Then: retrieval improvements, only when justified
-
-Measure retrieval recall and accepted task outcomes against `rg` alone. Evaluate optional local embeddings, language-server references, and a broader parser backend independently. Require opt-in data providers and cache isolation. Do not bundle a vector database merely to look sophisticated.
-
-## Host integration
-
-Delivered in 0.5.0: generic stdio LSP reference client and self-contained skill
-runtime. Next gate: live per-server integration fixtures and persistent-session
-index readiness. Protocol compatibility alone does not prove language coverage.
-
-Evaluate Codex-native telemetry and capability detection across supported hosts. Keep model selection, approvals, sandboxing, and concurrency in the host, not in misleading skill promises. Marketplace publication is separate from this GitHub release.
-
-No item above is presented as implemented until its code, tests, and evidence are available. Self-improvement changes the workflow through reviewed experiments; it never rewrites safety rules or its own acceptance criteria to score better.
+No daemon, universal semantic graph, marketplace publication, automatic upgrade
+service or measured Astra gain is claimed by the current release.

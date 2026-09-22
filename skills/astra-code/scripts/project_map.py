@@ -126,7 +126,7 @@ def build(db: sqlite3.Connection, root: Path, patterns: list[str], source_roots:
                               "evidence": "AST import candidate; runtime binding unverified"})
     signature = hashlib.sha256(json.dumps({"files": rows, "roots": source_roots,
         "exclude": patterns, "version": VERSION}, sort_keys=True).encode()).hexdigest()
-    return {"snapshot_sha256": signature, "files": dict(rows), "facts": records,
+    return {"snapshot_sha256": signature, "files": dict(rows), "exclude": list(patterns), "facts": records,
             "edges": edges, "unresolved_imports": unresolved,
             "unsupported_files": [p for p, _ in rows if not p.endswith(".py")],
             "stats": {**stats, "parsed": parsed, "reused": reused},
@@ -147,7 +147,8 @@ def impact(report: dict, changed: list[str]) -> dict:
         for consumer in reverse.get(pending.pop(), set()) - affected:
             affected.add(consumer)
             pending.append(consumer)
-    return {"snapshot_sha256": report["snapshot_sha256"], "requested": changed,
+    return {"snapshot_sha256": report["snapshot_sha256"], "files": report["files"],
+            "exclude": report.get("exclude", []), "requested": changed,
             "missing_paths": [p for p in changed if p not in report["files"]],
             "affected_candidates": sorted(affected),
             "edges": [e for e in report["edges"] if e["provider"] in affected],
