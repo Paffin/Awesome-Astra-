@@ -104,3 +104,47 @@ negative scenarios, legacy data and durable side effects in the executable suite
 Bind selected local environment inputs by measured hashes instead of assuming
 source equality implies environment equality. Keep external-version declarations
 explicitly unverified. This is an engineering extension, not a new benchmark claim.
+
+
+## 0.8.0: coherent expert fusion (2026-09-22)
+
+This release expands the synthesis without concatenating upstream instructions. Each borrowed
+idea is conditional and adapted to the existing Astra evidence/integration contract.
+
+- [Matt Pocock skills](https://github.com/mattpocock/skills): domain ownership, deeper module
+  boundaries, vertical slices, disciplined diagnosis and red-green-refactor. Adopted as
+  architecture/testing guidance, without mandatory interviews or reports for routine edits.
+- [Addy Osmani agent-skills](https://github.com/addyosmani/agent-skills): stable API/interface
+  boundaries and lifecycle separation. Adopted as contract-aware routing, not another parallel
+  implementation process.
+- [Trail of Bits skills](https://github.com/trailofbits/skills): differential security review,
+  blast-radius reasoning, property/mutation/static-analysis escalation. Adopted only for affected
+  trust boundaries or high-risk invariants; scanner output is not automatically a defect.
+- [Vercel agent-skills](https://github.com/vercel-labs/agent-skills) and
+  [agent-browser](https://github.com/vercel-labs/agent-browser): framework-aware frontend
+  performance plus real journey verification. The pack does not install browser tooling.
+- [Impeccable](https://github.com/pbakaus/impeccable): harden UI against real data, network,
+  localization and error states. Adapted into frontend state/accessibility guidance rather than
+  visual-style prescriptions.
+- [Supabase Postgres best practices](https://github.com/supabase/agent-skills): schema, query,
+  index, locking, RLS and migration concerns for Postgres anywhere. We retain project-native
+  tooling and do not import vendor-specific runtime assumptions.
+- [HashiCorp agent-skills](https://github.com/hashicorp/agent-skills): treat Terraform/IaC as
+  validated executable configuration and inspect plan-level consequences. No apply is authorized
+  by prose.
+- [Hugging Face skills](https://github.com/huggingface/skills): separate model selection,
+  quantization, memory, serving and evaluation concerns. Adapted into an AI/LLM contract that
+  separates weight fit from KV/runtime memory and measured throughput.
+- [ECC](https://github.com/affaan-m/ECC), [Ponytail](https://github.com/DietrichGebert/ponytail),
+  [Superpowers](https://github.com/obra/superpowers), and
+  [gstack](https://github.com/garrytan/gstack): search/reuse first, smallest complete change,
+  causal debugging, verification and end-to-end delivery. Existing references already embodied
+  these ideas; v0.8 routes them through domain-specific evidence instead of adding another
+  always-on lifecycle.
+- [Anthropic skills](https://github.com/anthropics/skills), OpenAI skill guidance, and Astra
+  community optimizers informed narrow triggers, lazy references and anti-trigger evaluation.
+  Upstream text is not vendored; source-specific licenses still apply to upstream material.
+
+The new behavior cases specify expected routing and outcomes for architecture, security,
+frontend, Postgres, infrastructure, AI and skill-audit tasks. They are specifications, not
+evidence that GPT-6 Astra passes them. A real host A/B evaluation remains a release gate.
