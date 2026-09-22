@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0 — 2026-09-22
+
+- Add generic stdio LSP reference client with explicit server argv/language ID,
+  UTF-16 position conversion, request deadlines, bounded frames and source hashes.
+- Handle server configuration requests; reject workspace mutation requests.
+- Surface external/excluded references and indexing-completeness limitations.
+- Bundle the integration checker inside astra-code; retain root CLI compatibility.
+- Add language routing reference and installed-package smoke checks for every tool.
+- Protocol fixtures are synthetic; cross-language server compatibility is not
+  established by these tests. No automatic server download or all-language claim.
+- Separately run live Python/Jedi and TypeScript-server cross-file fixtures;
+  add explicit additional-document opening after observing cold-start omissions.
+
 ## 0.4.0 — 2026-09-22
 
 - Add project-wide integration guidance: canonical owners, real entrypoints,

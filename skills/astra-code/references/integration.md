@@ -42,10 +42,17 @@ Use compiler/LSP references to resolve bindings; syntactic edges are not proof.
 
 ## Close the integration loop
 
-Refresh the map after edits. For multi-boundary work, use the repository's
-`tools/check_integration.py` with the fresh impact report and reviewed ledger
-(format documented in EVALUATION.md). Standalone installations can follow the
-same evidence checks manually; never assume repository tools are installed.
+Refresh evidence after edits. For Python-map reports, use the bundled
+[ledger checker](../scripts/check_integration.py) with the fresh impact report
+and reviewed ledger. For LSP evidence, inspect each returned consumer and retain
+checks; the Python-map ledger schema is not an LSP completeness validator.
+
+Ledger keys: `snapshot_sha256` copied from the fresh report; `consumers` keyed by
+every affected path with `disposition` (changed/compatible/not-applicable) and
+nonempty `evidence`; `checks` with `kind`, boolean `passed` and evidence, including
+one `entrypoint` check. Each nonempty coverage-gap category needs a
+`coverage_review` entry with `resolved: true` and evidence. Never manufacture it.
+Exit 0 means supplied bookkeeping passes, not that the evidence is authenticated.
 
 Run an acceptance check through the real entry point and across affected boundaries,
 not only the new helper in isolation. Exercise relevant invalid-input, permission,

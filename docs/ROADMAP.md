@@ -19,6 +19,10 @@ Measure retrieval recall and accepted task outcomes against `rg` alone. Evaluate
 
 ## Host integration
 
+Delivered in 0.5.0: generic stdio LSP reference client and self-contained skill
+runtime. Next gate: live per-server integration fixtures and persistent-session
+index readiness. Protocol compatibility alone does not prove language coverage.
+
 Evaluate Codex-native telemetry and capability detection across supported hosts. Keep model selection, approvals, sandboxing, and concurrency in the host, not in misleading skill promises. Marketplace publication is separate from this GitHub release.
 
 No item above is presented as implemented until its code, tests, and evidence are available. Self-improvement changes the workflow through reviewed experiments; it never rewrites safety rules or its own acceptance criteria to score better.

@@ -1,5 +1,27 @@
 # Evaluation protocol
 
+## 0.5.0 language-server evidence
+
+69 deterministic tests pass, including installed-skill tools, UTF-16 positions,
+configuration callbacks, capability/error handling, stalled pipe writes and
+inherited-pipe cleanup. Protocol fixtures are synthetic and labeled accordingly.
+
+Live smoke tests ran on 2026-09-22 with jedi-language-server 0.47.0 (Python) and
+typescript-language-server 4.3.3 + TypeScript 5.7.3. Both returned the declaration,
+consumer import and consumer call in the committed two-file fixtures. TypeScript
+initially returned only the declaration; explicitly opening its consumer before
+querying returned the cross-file references. This limitation is retained in docs.
+
+Reproduce with separately installed servers (absolute executable paths):
+
+```bash
+python3 tools/live_lsp_check.py --language python --server '["/path/to/jedi-language-server"]'
+python3 tools/live_lsp_check.py --language typescript --server '["/path/to/typescript-language-server","--stdio"]'
+```
+
+No other language-server compatibility is claimed as tested. No Astra quality,
+latency or token-saving measurement follows from these protocol/tool smoke tests.
+
 Use paired runs to compare skill revisions. Script tests, instruction byte counts, and subjective impressions do not measure model success.
 
 ## Controls and evidence

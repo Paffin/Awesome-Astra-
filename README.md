@@ -11,7 +11,7 @@ Two focused skills for GPT-6 Astra, not a giant system prompt or a mandatory age
 | [`astra-code`](skills/astra-code/SKILL.md) | Implement, debug, refactor, design, and review with targeted context and proportionate verification. |
 | [`astra-repo-audit`](skills/astra-repo-audit/SKILL.md) | Trim obsolete or conflicting Codex instructions without removing real safeguards. |
 
-Version **0.3.0** improves retrieval precision, adds declaration-aware chunks for common languages, strengthens secret exclusions, and validates both portable and Codex plugin manifests. Script tests are automated. **End-to-end Astra quality, latency, and token gains have not been measured for this release.** This project is not an AGI claim or an official OpenAI product.
+Version **0.5.0** adds language-independent stdio LSP reference queries and makes the coding skill self-contained, including its integration checker. External language servers are not bundled or installed automatically. **End-to-end Astra quality, latency, and token gains have not been measured for this release.** This is not an official OpenAI product.
 
 ## Install
 
@@ -50,6 +50,24 @@ Existing skills are protected. `--force` stages a complete copy before replaceme
 Alternatively, ask Codex's `$skill-installer` to install `skills/astra-code` and `skills/astra-repo-audit` from this repository. Root `plugin.json` is the portable manifest; `.codex-plugin/plugin.json` is the Codex compatibility manifest, and validation requires them to agree. GitHub publication is not marketplace publication. See [official installation and packaging documentation](https://learn.chatgpt.com/docs/build-plugins).
 
 ## Use
+
+The installable skill is [skills/astra-code/SKILL.md](skills/astra-code/SKILL.md),
+with UI metadata, conditional workflow references and all runtime scripts in the
+same folder. It runs independently of this repository after installation.
+Invoke it once with the task; the skill chooses the relevant workflow and tools:
+
+```text
+$astra-code implement this change through the existing entrypoint, trace every
+affected contract and consumer, verify integration, and report coverage gaps.
+```
+
+For non-Python semantic references, use the host's compiler/LSP tools or the
+bundled [language-independent client](skills/astra-code/references/languages.md).
+It accepts an explicit server argv and language ID, without a language allowlist.
+Protocol tests use a synthetic server; this release does not claim validated
+compatibility with every named server or completed workspace indexing.
+Live Python and TypeScript cross-file smoke tests also pass; exact versions,
+fixtures and reproducible commands are recorded in EVALUATION.md.
 
 ```text
 $astra-code fix the worker's retry race and verify the regression.

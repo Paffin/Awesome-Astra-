@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "astra-codex-skills",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Lean Astra coding skills with evidence-based verification and optional local code retrieval.",
   "repository": "https://github.com/Paffin/Awesome-Astra-",
   "license": "MIT"

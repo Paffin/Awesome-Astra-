@@ -40,6 +40,16 @@ See [CURSOR_INDEXING.md](docs/CURSOR_INDEXING.md) for operational limits. Cursor
 
 ## Release evidence and non-claims
 
+### 0.5.0 protocol integration
+
+The [LSP 3.17 specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/)
+is the protocol source for initialize, document opening, reference requests and
+position encoding. The generic client asks an explicit server for references;
+it does not reimplement each language or infer semantic edges from regex.
+Its protocol tests are synthetic. Server background-index readiness, build setup
+and external consumers remain explicit limits. All runtime tools now install
+with the skill, including the ledger checker formerly only at repository root.
+
 ### 0.4.0 application of the research
 
 Astra guidance is applied as a compact conditional integration reference, not

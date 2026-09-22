@@ -26,6 +26,10 @@ Otherwise load only the route that adds needed guidance:
 
 ## Conditional context
 
+For symbol definitions and consumers in any language, use
+[language-server context](references/languages.md). Prefer the host's persistent
+compiler/LSP session; the bundled stdio client supports explicit server commands.
+
 For new functionality or changes to shared behavior/contracts, use
 [project-wide integration](references/integration.md): identify the canonical
 owner, trace consumers, connect the real entry point, and verify affected boundaries.
